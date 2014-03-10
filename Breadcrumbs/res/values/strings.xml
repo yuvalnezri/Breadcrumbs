@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Breadcrumbs</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="newstring">new</string>
+    <string name="draw">draw path</string>
+    <string name="startlocation">start L</string>
+    <string name="stoplocation">stop L</string>
+    <string name="picture">picture</string>
+    <string name="note">note</string>
+    <string name="deleteall">delete</string>
+    <string name="adddebug">add debug</string>
+    <string name="save">save</string>
+
+</resources>
