@@ -17,7 +17,7 @@ public class GoogleServicesManager {
      * Define a request code to send to Google Play services
      * This code is returned in Activity.onActivityResult
      */
-    private final static int
+    public final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     
     private FragmentActivity context;

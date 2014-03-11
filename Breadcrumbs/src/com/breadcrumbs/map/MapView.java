@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -24,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.breadcrumbs.R;
 import com.breadcrumbs.helpers.SerializableRoute;
 
 
@@ -45,6 +47,8 @@ public abstract class MapView extends View
 	//canvas paint
 	private Paint canvasPaint;
 	
+	private Bitmap locationMarker;
+	protected PointF currentLocation;
 	
 	protected Paint paint;
 
@@ -54,7 +58,6 @@ public abstract class MapView extends View
 	
 	private Path path;
 	
-	protected Location currentLocation;
 	
 
 	
@@ -73,7 +76,7 @@ public abstract class MapView extends View
 		transform = new Matrix();
 		path = new Path();
 		
-		//locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.)
+		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.location_marker);
 		
 		initPaint();
 	}
@@ -157,6 +160,10 @@ public abstract class MapView extends View
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+	    if (currentLocation!=null) {
+	    	PointF transformedCurrent = transformPoint(currentLocation);
+	    	canvas.drawBitmap(locationMarker, transformedCurrent.x, transformedCurrent.y, null);
+	    }
 	    canvas.drawPath(path, paint);
 	}
 	

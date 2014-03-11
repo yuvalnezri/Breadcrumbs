@@ -4,7 +4,9 @@ package com.breadcrumbs;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.telephony.gsm.GsmCellLocation;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,12 +47,14 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         startLocationButton = (Button) findViewById(R.id.start_location_btn);
         stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
         saveButton = (Button) findViewById(R.id.save_btn);
+        pictureButton = (Button) findViewById(R.id.picture_btn);
         
         newButton.setOnClickListener(this);
         drawButton.setOnClickListener(this);
         startLocationButton.setOnClickListener(this);
         stopLocationButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
+        pictureButton.setOnClickListener(this);
         
     }
 
@@ -113,6 +117,10 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     	case R.id.save_btn :
     		saveRouteToDB();
     		break;
+    		
+    	case R.id.picture_btn:
+    		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    		startActivityForResult(intent, 100);
     	}
     }
     
@@ -155,7 +163,17 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
-    	gsManager.onActivityResult(requestCode, resultCode, data);
+    	switch (requestCode) {
+    	case GoogleServicesManager.CONNECTION_FAILURE_RESOLUTION_REQUEST :
+    		gsManager.onActivityResult(requestCode, resultCode, data);
+    		break;
+    		
+    	//case MediaStore.ACTION_IMAGE_CAPTURE:
+    		
+    		
+    	}
+    	
+    	
     }
     
   

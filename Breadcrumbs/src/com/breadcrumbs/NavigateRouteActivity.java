@@ -90,7 +90,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
     }
     
     public void onLocationUpdate(Location location) {
-    	//mapView.newLocationUpdate(location);
+    	mapView.newLocationUpdate(location);
     }
     
     /*

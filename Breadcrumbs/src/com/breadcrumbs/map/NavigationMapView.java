@@ -12,7 +12,7 @@ public class NavigationMapView extends MapView {
 	
 	@Override
 	public void newLocationUpdate(Location location) {
-		
+		currentLocation = getPointFFromLocation(location);
 	}
 	
 }
