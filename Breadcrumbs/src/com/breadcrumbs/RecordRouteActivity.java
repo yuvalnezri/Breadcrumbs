@@ -13,16 +13,16 @@ import android.widget.Button;
 
 import com.breadcrumbs.db.DbManager;
 import com.breadcrumbs.helpers.GoogleServicesManager;
-import com.breadcrumbs.helpers.MapView;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
+import com.breadcrumbs.map.RecordMapView;
 
 public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener {
 	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
 	
-	MapView mapView;
+	RecordMapView mapView;
 	DbManager dbManager;
 	
 	Button newButton, drawButton, startLocationButton, stopLocationButton,
@@ -37,7 +37,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         
         gsManager = new GoogleServicesManager(this);
         
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = (RecordMapView) findViewById(R.id.mapView);
         dbManager = new DbManager(this);
         
         newButton = (Button) findViewById(R.id.new_btn);

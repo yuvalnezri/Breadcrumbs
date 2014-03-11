@@ -1,15 +1,18 @@
-package com.breadcrumbs.helpers;
+package com.breadcrumbs.map;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -21,11 +24,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.breadcrumbs.helpers.SerializableRoute;
 
-public class MapView extends View
+
+public abstract class MapView extends View
 
 {
-	
 	
 	private final int INITIAL_SCALE = 10000;
 	
@@ -37,16 +41,22 @@ public class MapView extends View
 	
 	//canvas bitmap
 	private Bitmap canvasBitmap;
+	
 	//canvas paint
 	private Paint canvasPaint;
 	
 	
 	protected Paint paint;
+
+	protected ArrayList<PointF> locationArray;
+	
+	private Matrix transform;
 	
 	private Path path;
 	
-	//route
-	private Route route;
+	protected Location currentLocation;
+	
+
 	
 	public GestureDetector gestureDetector;
 	public ScaleGestureDetector scaleGestureDetector;
@@ -55,25 +65,75 @@ public class MapView extends View
 		super(context, attrs);
 		
 		this.context = context;
-		route = new Route();
+
 		gestureDetector = new GestureDetector(context, new GestureListener());
 		scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureListener());
+		
+		locationArray = new ArrayList<PointF>();
+		transform = new Matrix();
+		path = new Path();
+		
+		//locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.)
+		
 		initPaint();
 	}
 
-	public void newLocationUpdate(Location location) {
-		if (route.isEmpty()) { 
-			PointF start = getPointFFromLocation(location);
-			route.offset(-start.x, -start.y);
-			route.scale(INITIAL_SCALE);
-			route.offset(viewWidth/2, viewHeight/2);
-			route.recalculatePath();
-		}
-		
-		route.addLocation(location);
-		invalidate();
+	public abstract void newLocationUpdate(Location location);
+	
+	private PointF transformPoint(PointF point) {
+		float[] arr = new float[] {point.x,point.y};
+		transform.mapPoints(arr);
+		return new PointF(arr[0],arr[1]);
 	}
-
+	
+	private ArrayList<PointF> transformArray(ArrayList<PointF> array){
+		ArrayList<PointF> newArr = new ArrayList<PointF>();
+		for (Iterator<PointF> iterator = array.iterator(); iterator.hasNext();) {
+			PointF point = (PointF) iterator.next();
+			newArr.add(transformPoint(point));
+		}
+		return newArr;
+	}
+	
+	//initialize transformation matrix
+	protected void initTransform(PointF start) {
+		//add start location offset
+		transform.postTranslate(-start.x, -start.y);
+		//add initial scale
+		transform.postScale(INITIAL_SCALE, INITIAL_SCALE);
+		//add view offset
+		transform.postTranslate(viewWidth/2, viewHeight/2);
+	}
+	
+	protected void addPointToPath (PointF point) {
+		PointF transformedPoint = transformPoint(point);
+		
+		if (locationArray.isEmpty()) {
+			path.moveTo(transformedPoint.x, transformedPoint.y);
+		} else {
+			path.lineTo(transformedPoint.x, transformedPoint.y);
+		}
+	}
+	
+	protected void recalculatePath() {
+		path.rewind();
+		
+		if (locationArray.isEmpty())
+			return;
+		
+		ArrayList<PointF> transformedArray = transformArray(locationArray);
+		
+		path.moveTo(transformedArray.get(0).x, transformedArray.get(0).y);
+		
+		for (Iterator<PointF> iterator = transformedArray.iterator(); iterator
+				.hasNext();) {
+			PointF point = (PointF) iterator.next();
+			path.lineTo(point.x, point.y);
+			
+		}
+    }
+	
+	
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -84,9 +144,9 @@ public class MapView extends View
 		viewWidth = w;
 		viewHeight = h;
 		
-		if (!route.isEmpty()){
-			route.offset(w/2-oldw/2,h/2-oldh/2);
-			route.recalculatePath();
+		if (!locationArray.isEmpty()){
+			transform.postTranslate(w/2-oldw/2,h/2-oldh/2);
+			recalculatePath();
 		}
 		
 		canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -97,7 +157,6 @@ public class MapView extends View
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-	    path = route.getPath();
 	    canvas.drawPath(path, paint);
 	}
 	
@@ -117,16 +176,19 @@ public class MapView extends View
 	}
 	
 	public void reset() {
-		route = new Route();	
+		locationArray = new ArrayList<PointF>();
+		transform = new Matrix();
+		path = new Path();	
 		invalidate();
 	}
 	
 	public void drawDebugRoute() { 
-		route = new Route();
-		route.addLocation(viewWidth/2, viewHeight/2);
-		route.addLocation(viewWidth/2-50, viewHeight/2+50);
-		route.addLocation(viewWidth/2+50, viewHeight/2+50);
-		route.addLocation(viewWidth/2, viewHeight/2);
+		reset();
+		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
+		locationArray.add(new PointF(viewWidth/2-50, viewHeight/2+50));
+		locationArray.add(new PointF(viewWidth/2+50, viewHeight/2+50));
+		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
+		recalculatePath();
 		invalidate();
 	}
 	
@@ -134,8 +196,8 @@ public class MapView extends View
 	
 		@Override
 		public boolean onScroll(MotionEvent e1,MotionEvent e2, float distanceX, float distanceY) {
-			route.offset(-distanceX, -distanceY);
-			route.recalculatePath();
+			transform.postTranslate(-distanceX, -distanceY);
+			recalculatePath();
 			invalidate();
 			return true;
 		}
@@ -152,8 +214,8 @@ public class MapView extends View
 		
 		public boolean onScale(ScaleGestureDetector detector) {
 			float factor = detector.getScaleFactor();
-			route.scale(factor,scaleFocus.x,scaleFocus.y);
-			route.recalculatePath();
+			transform.postScale(factor,factor,scaleFocus.x,scaleFocus.y);
+			recalculatePath();
 			invalidate();
 			return true;
 		}
@@ -170,7 +232,7 @@ public class MapView extends View
 			baos = new ByteArrayOutputStream();
 			oos = new ObjectOutputStream(baos);
 			
-			SerializableRoute sroute = new SerializableRoute(route);
+			SerializableRoute sroute = new SerializableRoute(locationArray,transform);
 			sroute.removeViewOffset(viewWidth/2, viewHeight/2);
 			oos.writeObject(sroute);
 			byte[] buf = baos.toByteArray();
@@ -195,7 +257,9 @@ public class MapView extends View
 			
 			SerializableRoute sroute = (SerializableRoute) ois.readObject();
 			sroute.addViewOffset(viewWidth/2, viewHeight/2);
-			route = new Route(sroute);
+			locationArray = sroute.getLocationArray();
+			transform = sroute.getTransform();
+			recalculatePath();
 			invalidate();
 			
 			ois.close();

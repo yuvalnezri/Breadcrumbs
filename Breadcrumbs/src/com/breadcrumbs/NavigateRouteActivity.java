@@ -7,12 +7,12 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
 
 import com.breadcrumbs.helpers.GoogleServicesManager;
-import com.breadcrumbs.helpers.MapView;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
+import com.breadcrumbs.map.NavigationMapView;
 
 public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener {
-	MapView mapView;
+	NavigationMapView mapView;
 	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
@@ -24,7 +24,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigate);
 		
-		mapView = (MapView) findViewById(R.id.mapView);
+		mapView = (NavigationMapView) findViewById(R.id.mapView);
 		
 		byte[] route  = getIntent().getByteArrayExtra("route");
 		if (route == null) {
