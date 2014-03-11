@@ -302,4 +302,16 @@ public class MapView extends View
 		}
 		
 	}
+	
+	public void focus() {
+		if(currentLocation == null){
+			return;
+		}
+		PointF temp = transformPoint(currentLocation);
+		transform.postTranslate(-temp.x, -temp.y);
+		//post scaling to defualt
+		transform.postTranslate(viewWidth/2, viewHeight/2);
+		recalculatePath();
+		invalidate();
+	}
 }

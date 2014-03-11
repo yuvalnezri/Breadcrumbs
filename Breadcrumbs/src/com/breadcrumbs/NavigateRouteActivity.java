@@ -5,18 +5,21 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.NavigationMapView;
 
-public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener {
+public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener  {
 	NavigationMapView mapView;
 	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
-	
+	Button focusButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +27,12 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigate);
 		
+		//finding view by id
 		mapView = (NavigationMapView) findViewById(R.id.mapView);
+		focusButton = (Button) findViewById(R.id.focus_btn);
+		
+		//set on click listener
+		focusButton.setOnClickListener(this);
 		
 		byte[] route  = getIntent().getByteArrayExtra("route");
 		if (route == null) {
@@ -39,7 +47,15 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		
 	}
 	
-	
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+    	case R.id.focus_btn :
+    		mapView.focus();
+    		break;
+		}
+		
+	}
 	@Override
 	protected void onStart(){
 		super.onStart();

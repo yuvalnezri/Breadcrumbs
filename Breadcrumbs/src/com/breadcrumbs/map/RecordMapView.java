@@ -25,6 +25,7 @@ public class RecordMapView extends MapView {
 		}
 		addPointToPath(point);
 		locationArray.add(point);
+		currentLocation = point;
 		invalidate();
 	}
 

@@ -13,5 +13,6 @@
     <string name="deleteall">delete</string>
     <string name="adddebug">add debug</string>
     <string name="save">save</string>
+    <string name="focus">focus</string>
 
 </resources>
