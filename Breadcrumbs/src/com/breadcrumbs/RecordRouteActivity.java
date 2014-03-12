@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -193,23 +194,28 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     }
     
     
-    private String saveNewPic(Bitmap pic) {
+    private String saveNewPic(Bitmap pic)  {
     	File appDir = getDir("imageDir", MODE_PRIVATE);
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",java.util.Locale.getDefault())
                 .format(new Date());
         File imgFile = new File(appDir.getPath() + File.separator + routeName + File.separator , "IMG_" 
         		+ timeStamp + ".jpg");
+
+        
         FileOutputStream fos = null;
         try {           
-
+            if (imgFile.exists() == false) {
+                imgFile.getParentFile().mkdirs();
+                imgFile.createNewFile();
+            }
             fos = new FileOutputStream(imgFile);
 
             // Use the compress method on the BitMap object to write image to the OutputStream
             pic.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("breadcrumbs", "ERROR", e);
         }
         return imgFile.getAbsolutePath();
     }

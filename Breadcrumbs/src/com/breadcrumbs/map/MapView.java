@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -27,6 +28,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.breadcrumbs.R;
+import com.breadcrumbs.ViewPictureActivity;
 import com.breadcrumbs.helpers.SerializableRoute;
 
 
@@ -73,6 +75,7 @@ public class MapView extends View
 		super(context, attrs);
 		
 		this.context = context;
+		this.setOnTouchListener( new myTouchListener());
 
 		gestureDetector = new GestureDetector(context, new GestureListener());
 		scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureListener());
@@ -341,7 +344,40 @@ public class MapView extends View
 		invalidate();
 	}
 
-	
+	private class myTouchListener implements OnTouchListener {
+		static final int CAMERA_ICON_SIZE=20;
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			case MotionEvent.ACTION_DOWN:
+				ArrayList<String> paths = new ArrayList<String>();
+				imageClicked(event.getX(), event.getY(), paths);
+				if (paths.size() > 0) {
+					//handle only first one for now
+					//TODO handle more
+					Intent i = new Intent(context,ViewPictureActivity.class);
+					i.putExtra("imagepath",	paths.get(0));
+					context.startActivity(i);
+				}
+				break;
+			}
+
+			return false;
+		}
+		
+		private void imageClicked(float x,float y,ArrayList<String> paths) {
+			for (int i=0; i<imageLocationArray.size(); i++){
+				PointF point = imageLocationArray.get(i);
+				if ((point.x-CAMERA_ICON_SIZE < x) && (x < point.x+CAMERA_ICON_SIZE) &&
+					(point.y-CAMERA_ICON_SIZE < y) && (y < point.y+CAMERA_ICON_SIZE)) {
+					paths.add(imageArray.get(i).second);
+				}
+			}
+		}
+		
+		
+	}
 	
 	
 	
