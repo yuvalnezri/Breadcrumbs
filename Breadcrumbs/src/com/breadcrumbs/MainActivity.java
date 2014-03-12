@@ -125,6 +125,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		        newRouteName = input.getText().toString();
 		        Context context = getApplicationContext();
 				Intent i = new Intent(context, RecordRouteActivity.class);
+				i.putExtra("name", newRouteName);
 				startActivityForResult(i, ROUTE_REQUEST);
 		    }
 		});

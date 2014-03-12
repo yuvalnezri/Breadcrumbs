@@ -1,12 +1,18 @@
 package com.breadcrumbs;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.telephony.gsm.GsmCellLocation;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,8 +27,12 @@ import com.breadcrumbs.map.RecordMapView;
 
 public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener {
 	
+	private final static int CAMERA_REQUEST = 100;
+	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
+	
+	String routeName;
 	
 	RecordMapView mapView;
 	DbManager dbManager;
@@ -30,10 +40,14 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 	Button newButton, drawButton, startLocationButton, stopLocationButton,
 			pictureButton, noteButton, saveButton;
 	
+	Uri imageUri;
+	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+        
+        routeName = getIntent().getExtras().getString("name");
         
         locationManager = new LocationManager(this);
         
@@ -120,7 +134,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     		
     	case R.id.picture_btn:
     		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    		startActivityForResult(intent, 100);
+    		startActivityForResult(intent, CAMERA_REQUEST);
     	}
     }
     
@@ -161,20 +175,45 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
      * by Google Play services
      */
     @Override
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case GoogleServicesManager.CONNECTION_FAILURE_RESOLUTION_REQUEST :
     		gsManager.onActivityResult(requestCode, resultCode, data);
     		break;
     		
-    	//case MediaStore.ACTION_IMAGE_CAPTURE:
-    		
-    		
+    	case CAMERA_REQUEST:
+    		if (resultCode == RESULT_CANCELED)
+    			return;
+    		Bitmap pic = (Bitmap) data.getExtras().get("data");
+    		String path = saveNewPic(pic);
+    		mapView.takePicture(path);
     	}
     	
     	
     }
     
+    
+    private String saveNewPic(Bitmap pic) {
+    	File appDir = getDir("imageDir", MODE_PRIVATE);
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",java.util.Locale.getDefault())
+                .format(new Date());
+        File imgFile = new File(appDir.getPath() + File.separator + routeName + File.separator , "IMG_" 
+        		+ timeStamp + ".jpg");
+        FileOutputStream fos = null;
+        try {           
+
+            fos = new FileOutputStream(imgFile);
+
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            pic.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return imgFile.getAbsolutePath();
+    }
+    
+
   
 }
