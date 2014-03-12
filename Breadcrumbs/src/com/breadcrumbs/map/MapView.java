@@ -29,7 +29,7 @@ import com.breadcrumbs.R;
 import com.breadcrumbs.helpers.SerializableRoute;
 
 
-public abstract class MapView extends View
+public class MapView extends View
 
 {
 	
@@ -50,7 +50,7 @@ public abstract class MapView extends View
 	private Bitmap locationMarker;
 	protected PointF currentLocation;
 	
-	protected Paint paint;
+	protected Paint paint,textPaint,linePaint;
 
 	protected ArrayList<PointF> locationArray;
 	
@@ -58,7 +58,7 @@ public abstract class MapView extends View
 	
 	private Path path;
 	
-	
+	float initPixToMeter ;
 
 	
 	public GestureDetector gestureDetector;
@@ -81,7 +81,13 @@ public abstract class MapView extends View
 		initPaint();
 	}
 
-	public abstract void newLocationUpdate(Location location);
+	public void newLocationUpdate(Location location) {
+		if (locationArray.isEmpty()) {
+			Location newL = new Location(location);
+			newL.setLatitude(location.getLatitude()+1);
+			initPixToMeter = newL.distanceTo(location);
+		}
+	}
 	
 	private PointF transformPoint(PointF point) {
 		float[] arr = new float[] {point.x,point.y};
@@ -156,6 +162,13 @@ public abstract class MapView extends View
 		invalidate();
 	}
 	
+	public float calcZoomFactor(){
+		float values[] = new float[9];
+	    transform.getValues(values);
+	    float scaleX = values[Matrix.MSCALE_X];
+	    float factor = initPixToMeter / scaleX * 50;
+	    return factor;
+	}
 	@Override
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
@@ -165,6 +178,9 @@ public abstract class MapView extends View
 	    	canvas.drawBitmap(locationMarker, transformedCurrent.x, transformedCurrent.y, null);
 	    }
 	    canvas.drawPath(path, paint);
+	    
+	    canvas.drawText(Float.toString(calcZoomFactor()), 10, 30, textPaint);
+	    canvas.drawLine(10, 35, 60, 35, linePaint);
 	}
 	
 	private void initPaint(){
@@ -176,6 +192,13 @@ public abstract class MapView extends View
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
+		textPaint = new Paint();
+		textPaint.setTextSize(30f);
+		textPaint.setColor(Color.BLUE);
+		linePaint = new Paint();
+		linePaint.setTextSize(30f);
+		linePaint.setTextScaleX(4);
+		linePaint.setColor(Color.BLUE);
 	}
 	
 	public PointF getPointFFromLocation(Location location) {

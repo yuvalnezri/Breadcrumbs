@@ -18,6 +18,7 @@ public class RecordMapView extends MapView {
 
 	@Override
 	public void newLocationUpdate(Location location) {
+		super.newLocationUpdate(location);
 		PointF point = getPointFFromLocation(location);
 		if (locationArray.isEmpty()) {
 			initTransform(point);
