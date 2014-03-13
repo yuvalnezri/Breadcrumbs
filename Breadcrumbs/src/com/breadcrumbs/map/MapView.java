@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,12 +22,14 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.breadcrumbs.R;
+import com.breadcrumbs.ViewPictureActivity;
 import com.breadcrumbs.helpers.SerializableRoute;
 
 
@@ -49,11 +52,15 @@ public class MapView extends View
 	private Paint canvasPaint;
 	
 	private Bitmap locationMarker;
+	private Bitmap cameraIcon;
+	
 	protected PointF currentLocation;
 	
 	protected Paint paint,textPaint,linePaint;
 
 	protected ArrayList<PointF> locationArray;
+	protected ArrayList<Pair<PointF,String>> imageArray;
+	protected ArrayList<PointF> imageLocationArray;
 	
 	private Matrix transform;
 	
@@ -69,15 +76,20 @@ public class MapView extends View
 		super(context, attrs);
 		
 		this.context = context;
+		this.setOnTouchListener( new myTouchListener());
 
 		gestureDetector = new GestureDetector(context, new GestureListener());
 		scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureListener());
 		
 		locationArray = new ArrayList<PointF>();
+		imageArray = new ArrayList<Pair<PointF,String>>();
+		imageLocationArray = new ArrayList<PointF>();
 		transform = new Matrix();
 		path = new Path();
 		
 		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.location_marker);
+		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
+		
 		
 		initPaint();
 	}
@@ -90,7 +102,7 @@ public class MapView extends View
 		}
 	}
 	
-	private PointF transformPoint(PointF point) {
+	protected PointF transformPoint(PointF point) {
 		float[] arr = new float[] {point.x,point.y};
 		transform.mapPoints(arr);
 		return new PointF(arr[0],arr[1]);
@@ -141,6 +153,13 @@ public class MapView extends View
 			path.lineTo(point.x, point.y);
 			
 		}
+		imageLocationArray.clear();
+		for (Iterator<Pair<PointF, String>> iterator = imageArray.iterator(); iterator
+				.hasNext();) {
+			Pair<PointF, String> pair = (Pair<PointF, String>) iterator.next();
+			imageLocationArray.add(transformPoint(pair.first));
+		}
+		
     }
 	
 	
@@ -176,13 +195,24 @@ public class MapView extends View
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+	    //draw location marker
 	    if (currentLocation!=null) {
 	    	PointF transformedCurrent = transformPoint(currentLocation);
-	    	canvas.drawBitmap(locationMarker, transformedCurrent.x, transformedCurrent.y, null);
+	    	canvas.drawBitmap(locationMarker, transformedCurrent.x-locationMarker.getWidth()/2,
+	    			transformedCurrent.y-locationMarker.getHeight(), null);
 	    }
 	    canvas.drawPath(path, paint);
 	    
+	    //draw camera icons
+	    for (Iterator<PointF> iterator = imageLocationArray.iterator(); iterator.hasNext();) {
+			PointF point = (PointF) iterator.next();
+			canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
+		}
+	    
+	    
+
 	    canvas.drawText(calcZoomFactor(), 10, 30, textPaint);
+
 	    canvas.drawLine(10, 35, 60, 35, linePaint);
 	}
 	
@@ -264,7 +294,7 @@ public class MapView extends View
 			baos = new ByteArrayOutputStream();
 			oos = new ObjectOutputStream(baos);
 			
-			SerializableRoute sroute = new SerializableRoute(locationArray,transform);
+			SerializableRoute sroute = new SerializableRoute(locationArray,transform, imageArray);
 			sroute.removeViewOffset(viewWidth/2, viewHeight/2);
 			oos.writeObject(sroute);
 			byte[] buf = baos.toByteArray();
@@ -291,6 +321,7 @@ public class MapView extends View
 			sroute.addViewOffset(viewWidth/2, viewHeight/2);
 			locationArray = sroute.getLocationArray();
 			transform = sroute.getTransform();
+			imageArray = sroute.getImageArray();
 			recalculatePath();
 			invalidate();
 			
@@ -316,4 +347,42 @@ public class MapView extends View
 		recalculatePath();
 		invalidate();
 	}
+
+	private class myTouchListener implements OnTouchListener {
+		static final int CAMERA_ICON_SIZE=20;
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			case MotionEvent.ACTION_DOWN:
+				ArrayList<String> paths = new ArrayList<String>();
+				imageClicked(event.getX(), event.getY(), paths);
+				if (paths.size() > 0) {
+					//handle only first one for now
+					//TODO handle more
+					Intent i = new Intent(context,ViewPictureActivity.class);
+					i.putExtra("imagepath",	paths.get(0));
+					context.startActivity(i);
+				}
+				break;
+			}
+
+			return false;
+		}
+		
+		private void imageClicked(float x,float y,ArrayList<String> paths) {
+			for (int i=0; i<imageLocationArray.size(); i++){
+				PointF point = imageLocationArray.get(i);
+				if ((point.x-CAMERA_ICON_SIZE < x) && (x < point.x+CAMERA_ICON_SIZE) &&
+					(point.y-CAMERA_ICON_SIZE < y) && (y < point.y+CAMERA_ICON_SIZE)) {
+					paths.add(imageArray.get(i).second);
+				}
+			}
+		}
+		
+		
+	}
+	
+	
+	
 }

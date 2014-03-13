@@ -1,12 +1,19 @@
 package com.breadcrumbs;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.telephony.gsm.GsmCellLocation;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,21 +30,27 @@ import com.breadcrumbs.map.RecordMapView;
 
 public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener {
 	
+	private final static int CAMERA_REQUEST = 100;
+	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
 	
+	String routeName;
+	
 	RecordMapView mapView;
 	DbManager dbManager;
-	
-	//Button newButton, drawButton, startLocationButton, stopLocationButton,
-	//		pictureButton, noteButton, saveButton,focusButton;
+
 	Button  drawButton, startLocationButton, stopLocationButton;
 	
+	
+	Uri imageUri;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+        
+        routeName = getIntent().getExtras().getString("name");
         
         locationManager = new LocationManager(this);
         
@@ -46,23 +59,13 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         mapView = (RecordMapView) findViewById(R.id.mapView);
         dbManager = new DbManager(this);
         
-       // newButton = (Button) findViewById(R.id.new_btn);
         drawButton = (Button) findViewById(R.id.draw_btn);
         startLocationButton = (Button) findViewById(R.id.start_location_btn);
         stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
-       // saveButton = (Button) findViewById(R.id.save_btn);
-       // pictureButton = (Button) findViewById(R.id.picture_btn);
-		//focusButton = (Button) findViewById(R.id.focus_btn);
-
-       // newButton.setOnClickListener(this);
         drawButton.setOnClickListener(this);
         startLocationButton.setOnClickListener(this);
         stopLocationButton.setOnClickListener(this);
-      //  saveButton.setOnClickListener(this);
-       // pictureButton.setOnClickListener(this);
-		//focusButton.setOnClickListener(this);
 
-        
     }
 
 	@Override
@@ -85,7 +88,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         		return true;
         	case R.id.picture_btn:
         		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        		startActivityForResult(intent, 100);
+        		startActivityForResult(intent, CAMERA_REQUEST);
         		return true;
         
         	default:
@@ -124,22 +127,11 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 			locationManager.stop();
 		}
 	}
-//   @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
+
     
     @Override
     public void onClick(View view) {
     	switch (view.getId()) {
-    	//case R.id.focus_btn :
-    	//	mapView.focus();
-    	//	break;
-    	//case R.id.new_btn :
-    	//	mapView.reset();
-    	//	break;
     	case R.id.draw_btn :
     		mapView.drawDebugRoute();
     		break;
@@ -150,16 +142,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     	case R.id.stop_location_btn :
     		locationManager.stop();
     		break;
-    		
-    	//case R.id.save_btn :
-    	//	saveRouteToDB();
-    	//	break;
-    		
-    	//case R.id.picture_btn:
-    	//	Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    	//	startActivityForResult(intent, 100);
-    	}
-    	
+    	}	
     }
     
     public void saveRouteToDB() {
@@ -199,20 +182,50 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
      * by Google Play services
      */
     @Override
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case GoogleServicesManager.CONNECTION_FAILURE_RESOLUTION_REQUEST :
     		gsManager.onActivityResult(requestCode, resultCode, data);
     		break;
     		
-    	//case MediaStore.ACTION_IMAGE_CAPTURE:
-    		
-    		
+    	case CAMERA_REQUEST:
+    		if (resultCode == RESULT_CANCELED)
+    			return;
+    		Bitmap pic = (Bitmap) data.getExtras().get("data");
+    		String path = saveNewPic(pic);
+    		mapView.takePicture(path);
     	}
     	
     	
     }
     
+    
+    private String saveNewPic(Bitmap pic)  {
+    	File appDir = getDir("imageDir", MODE_PRIVATE);
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",java.util.Locale.getDefault())
+                .format(new Date());
+        File imgFile = new File(appDir.getPath() + File.separator + routeName + File.separator , "IMG_" 
+        		+ timeStamp + ".jpg");
+
+        
+        FileOutputStream fos = null;
+        try {           
+            if (imgFile.exists() == false) {
+                imgFile.getParentFile().mkdirs();
+                imgFile.createNewFile();
+            }
+            fos = new FileOutputStream(imgFile);
+
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            pic.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            Log.e("breadcrumbs", "ERROR", e);
+        }
+        return imgFile.getAbsolutePath();
+    }
+    
+
   
 }

@@ -22,13 +22,7 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:orientation="horizontal" >
-<!-- 
-        <Button
-            android:id="@+id/new_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="@string/newstring" />
--->
+
         <Button
             android:id="@+id/draw_btn"
             android:layout_width="wrap_content"
@@ -47,35 +41,5 @@
             android:layout_height="fill_parent"
             android:text="@string/stoplocation" />
     </LinearLayout>
-<!-- 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/picture_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="@string/picture" />
-
-        <Button
-            android:id="@+id/note_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="@string/note" />
-
-        <Button
-            android:id="@+id/save_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:text="@string/save" />
-        <Button
-            android:id="@+id/focus_btn"
-            android:layout_width="76dp"
-            android:layout_height="fill_parent"
-            android:background="@drawable/crosshair" />
-    </LinearLayout>
--->
 </LinearLayout>
