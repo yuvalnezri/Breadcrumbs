@@ -8,9 +8,8 @@
         android:id="@+id/mapView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFFFF" />
-    <LinearLayout
+        android:layout_weight="1"/>
+<!--    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_gravity="center"
@@ -18,10 +17,11 @@
 
         <Button
             android:id="@+id/focus_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="76dp"
             android:layout_height="fill_parent"
-            android:text="@string/focus" />
-   </LinearLayout>
+            android:background="@drawable/crosshair" />
+   </LinearLayout> 
 
+-->
 
 </LinearLayout>

@@ -14,6 +14,7 @@ public class NavigationMapView extends MapView {
 	public void newLocationUpdate(Location location) {
 		currentLocation = getPointFFromLocation(location);
 		super.newLocationUpdate(location);
+		
 	}
 	
 }

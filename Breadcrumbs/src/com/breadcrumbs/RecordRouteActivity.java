@@ -8,6 +8,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.gsm.GsmCellLocation;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,8 +29,10 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 	RecordMapView mapView;
 	DbManager dbManager;
 	
-	Button newButton, drawButton, startLocationButton, stopLocationButton,
-			pictureButton, noteButton, saveButton;
+	//Button newButton, drawButton, startLocationButton, stopLocationButton,
+	//		pictureButton, noteButton, saveButton,focusButton;
+	Button  drawButton, startLocationButton, stopLocationButton;
+	
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,22 +46,52 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         mapView = (RecordMapView) findViewById(R.id.mapView);
         dbManager = new DbManager(this);
         
-        newButton = (Button) findViewById(R.id.new_btn);
+       // newButton = (Button) findViewById(R.id.new_btn);
         drawButton = (Button) findViewById(R.id.draw_btn);
         startLocationButton = (Button) findViewById(R.id.start_location_btn);
         stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
-        saveButton = (Button) findViewById(R.id.save_btn);
-        pictureButton = (Button) findViewById(R.id.picture_btn);
-        
-        newButton.setOnClickListener(this);
+       // saveButton = (Button) findViewById(R.id.save_btn);
+       // pictureButton = (Button) findViewById(R.id.picture_btn);
+		//focusButton = (Button) findViewById(R.id.focus_btn);
+
+       // newButton.setOnClickListener(this);
         drawButton.setOnClickListener(this);
         startLocationButton.setOnClickListener(this);
         stopLocationButton.setOnClickListener(this);
-        saveButton.setOnClickListener(this);
-        pictureButton.setOnClickListener(this);
+      //  saveButton.setOnClickListener(this);
+       // pictureButton.setOnClickListener(this);
+		//focusButton.setOnClickListener(this);
+
         
     }
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+	    MenuInflater menuInflater = getMenuInflater();
+	    menuInflater.inflate(R.layout.record_menu, menu);
+	    return true;
+	}
+		 
+	public boolean onOptionsItemSelected(MenuItem item){
+         switch (item.getItemId()){
+        	case R.id.focus_btn:
+	        	mapView.focus();
+	    		return true;
+        	case R.id.new_btn :
+        		mapView.reset();
+        		return true;
+        	case R.id.save_btn :
+        		saveRouteToDB();
+        		return true;
+        	case R.id.picture_btn:
+        		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        		startActivityForResult(intent, 100);
+        		return true;
+        
+        	default:
+        		return super.onOptionsItemSelected(item);
+        }
+    }
 	@Override
 	protected void onStart(){
 		super.onStart();
@@ -90,19 +124,22 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 			locationManager.stop();
 		}
 	}
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+//   @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
     
     @Override
     public void onClick(View view) {
     	switch (view.getId()) {
-    	case R.id.new_btn :
-    		mapView.reset();
-    		break;
+    	//case R.id.focus_btn :
+    	//	mapView.focus();
+    	//	break;
+    	//case R.id.new_btn :
+    	//	mapView.reset();
+    	//	break;
     	case R.id.draw_btn :
     		mapView.drawDebugRoute();
     		break;
@@ -114,14 +151,15 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     		locationManager.stop();
     		break;
     		
-    	case R.id.save_btn :
-    		saveRouteToDB();
-    		break;
+    	//case R.id.save_btn :
+    	//	saveRouteToDB();
+    	//	break;
     		
-    	case R.id.picture_btn:
-    		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    		startActivityForResult(intent, 100);
+    	//case R.id.picture_btn:
+    	//	Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    	//	startActivityForResult(intent, 100);
     	}
+    	
     }
     
     public void saveRouteToDB() {

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -162,12 +163,14 @@ public class MapView extends View
 		invalidate();
 	}
 	
-	public float calcZoomFactor(){
+	public String calcZoomFactor(){
 		float values[] = new float[9];
 	    transform.getValues(values);
 	    float scaleX = values[Matrix.MSCALE_X];
 	    float factor = initPixToMeter / scaleX * 50;
-	    return factor;
+	    DecimalFormat df = new DecimalFormat("#.00");
+	    String formated = df.format(factor);
+	    return formated;
 	}
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -179,7 +182,7 @@ public class MapView extends View
 	    }
 	    canvas.drawPath(path, paint);
 	    
-	    canvas.drawText(Float.toString(calcZoomFactor()), 10, 30, textPaint);
+	    canvas.drawText(calcZoomFactor(), 10, 30, textPaint);
 	    canvas.drawLine(10, 35, 60, 35, linePaint);
 	}
 	
@@ -196,8 +199,7 @@ public class MapView extends View
 		textPaint.setTextSize(30f);
 		textPaint.setColor(Color.BLUE);
 		linePaint = new Paint();
-		linePaint.setTextSize(30f);
-		linePaint.setTextScaleX(4);
+		linePaint.setStrokeWidth(2);
 		linePaint.setColor(Color.BLUE);
 	}
 	

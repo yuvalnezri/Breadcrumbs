@@ -1,13 +1,17 @@
 package com.breadcrumbs;
 
+
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+//import android.widget.Button;
 
 import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.location.LocationManager;
@@ -19,20 +23,20 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
-	Button focusButton;
+	//Button focusButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigate);
-		
+			
 		//finding view by id
 		mapView = (NavigationMapView) findViewById(R.id.mapView);
-		focusButton = (Button) findViewById(R.id.focus_btn);
+		//focusButton = (Button) findViewById(R.id.focus_btn);
 		
 		//set on click listener
-		focusButton.setOnClickListener(this);
+		//focusButton.setOnClickListener(this);
 		
 		byte[] route  = getIntent().getByteArrayExtra("route");
 		if (route == null) {
@@ -47,13 +51,30 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		
 	}
 	
+	 @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.layout.navigate_menu, menu);
+        return true;
+    }
+	 
+	public boolean onOptionsItemSelected(MenuItem item){
+         switch (item.getItemId()){
+        	case R.id.focus_btn:
+	        	mapView.focus();
+	    		return true;
+        
+        	default:
+        		return super.onOptionsItemSelected(item);
+        }
+    }
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-    	case R.id.focus_btn :
-    		mapView.focus();
-    		break;
-		}
+		//switch (v.getId()) {
+    	//case R.id.focus_btn :
+    	//	mapView.focus();
+    	//	break;
+		//}
 		
 	}
 	@Override
