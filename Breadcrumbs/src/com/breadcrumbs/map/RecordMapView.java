@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.location.Location;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.widget.Toast;
+
+import com.breadcrumbs.helpers.MapItem;
+import com.breadcrumbs.helpers.MapItem.Type;
 
 public class RecordMapView extends MapView {
 	
@@ -29,15 +31,16 @@ public class RecordMapView extends MapView {
 		invalidate();
 	}
 
-	public void takePicture(String path) {
+	public void addMapItem(String data,Type type) {
 		if (currentLocation==null) {
-			Toast.makeText(context, "Cant take picture, need to get location first...", Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, "Cant add item, need to get location first...", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		imageArray.add(new Pair<PointF, String>(currentLocation, path));
+		mapItemsArray.add(new MapItem(currentLocation, data, type));
 		PointF point = transformPoint(currentLocation);
-		imageLocationArray.add(point);
+		mapItemsLocationArray.add(point);
 		invalidate();
 		
 	}
+		
 }

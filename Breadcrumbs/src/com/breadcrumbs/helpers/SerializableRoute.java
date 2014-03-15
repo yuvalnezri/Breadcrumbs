@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.util.Pair;
 
 public class SerializableRoute implements Serializable {
 
@@ -17,13 +16,12 @@ public class SerializableRoute implements Serializable {
 	
 	private float[] loactionArray;
 	private float[] matrix;
-	private float[] imageLocationArray;
-	private String[] imagePathArray;
+	private ArrayList<MapItem> mapItemsArray;
 	
-	public SerializableRoute(ArrayList<PointF> locationArray, Matrix matrix, ArrayList<Pair<PointF,String>> imageArray) {
+	public SerializableRoute(ArrayList<PointF> locationArray, Matrix matrix, ArrayList<MapItem> mapItemsArray) {
 		this.loactionArray = getPointArrayFromArrayList(locationArray);
 		this.matrix = new float[9];
-		serializeImages(imageArray);
+		this.mapItemsArray = mapItemsArray;
 		matrix.getValues(this.matrix);
 	}
 	
@@ -36,27 +34,27 @@ public class SerializableRoute implements Serializable {
 		removeViewOffset(-viewWidth, -viewHeight);
 	}
 	
-	private void serializeImages(ArrayList<Pair<PointF,String>> imageArray){
-		imageLocationArray = new float[imageArray.size()*2];
-		imagePathArray = new String[imageArray.size()];
-		int i=0;
-		for (Iterator<Pair<PointF, String>> iterator = imageArray.iterator(); iterator.hasNext();) {
-			Pair<PointF, String> pair = (Pair<PointF, String>) iterator.next();
-			imageLocationArray[i*2] = pair.first.x;
-			imageLocationArray[i*2+1] = pair.first.y;
-			imagePathArray[i] = pair.second;
-			i++;
-		}
-	}
-	
-	private ArrayList<Pair<PointF,String>> deserializeImages(float[] imageLocationArray,String[] imagePathArray) {
-		ArrayList<Pair<PointF,String>> imageArray = new ArrayList<Pair<PointF,String>>();
-		for (int i = 0; i < imagePathArray.length; i++) {
-			imageArray.add(new Pair<PointF,String>(new PointF(imageLocationArray[2*i],imageLocationArray[2*i+1]),
-					imagePathArray[i]));
-		}
-		return imageArray;
-	}
+//	private void serializeImages(ArrayList<Pair<PointF,String>> imageArray){
+//		imageLocationArray = new float[imageArray.size()*2];
+//		imagePathArray = new String[imageArray.size()];
+//		int i=0;
+//		for (Iterator<Pair<PointF, String>> iterator = imageArray.iterator(); iterator.hasNext();) {
+//			Pair<PointF, String> pair = (Pair<PointF, String>) iterator.next();
+//			imageLocationArray[i*2] = pair.first.x;
+//			imageLocationArray[i*2+1] = pair.first.y;
+//			imagePathArray[i] = pair.second;
+//			i++;
+//		}
+//	}
+//	
+//	private ArrayList<Pair<PointF,String>> deserializeImages(float[] imageLocationArray,String[] imagePathArray) {
+//		ArrayList<Pair<PointF,String>> imageArray = new ArrayList<Pair<PointF,String>>();
+//		for (int i = 0; i < imagePathArray.length; i++) {
+//			imageArray.add(new Pair<PointF,String>(new PointF(imageLocationArray[2*i],imageLocationArray[2*i+1]),
+//					imagePathArray[i]));
+//		}
+//		return imageArray;
+//	}
 	
 	
 	private float[] getPointArrayFromArrayList(ArrayList<PointF> arraylist) {
@@ -91,7 +89,7 @@ public class SerializableRoute implements Serializable {
 		return transform;
 	}
 	
-	public ArrayList<Pair<PointF,String>> getImageArray() {
-		return deserializeImages(imageLocationArray, imagePathArray);
+	public ArrayList<MapItem> getMapItemsArray() {
+		return mapItemsArray;
 	}
 }

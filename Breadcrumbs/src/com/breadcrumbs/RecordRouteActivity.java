@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -13,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,9 +24,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.breadcrumbs.db.DbManager;
 import com.breadcrumbs.helpers.GoogleServicesManager;
+import com.breadcrumbs.helpers.MapItem.Type;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.RecordMapView;
@@ -41,6 +46,8 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 	DbManager dbManager;
 
 	Button  drawButton, startLocationButton, stopLocationButton;
+	
+	String note;
 	
 	
 	Uri imageUri;
@@ -89,6 +96,9 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         	case R.id.picture_btn:
         		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         		startActivityForResult(intent, CAMERA_REQUEST);
+        		return true;
+        	case R.id.note_btn :
+        		takeNote();
         		return true;
         
         	default:
@@ -193,7 +203,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     			return;
     		Bitmap pic = (Bitmap) data.getExtras().get("data");
     		String path = saveNewPic(pic);
-    		mapView.takePicture(path);
+    		mapView.addMapItem(path, Type.PICTURE);
     	}
     	
     	
@@ -226,6 +236,36 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         return imgFile.getAbsolutePath();
     }
     
+    
+    private void takeNote() {
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Take Note");
+
+		// Set up the input
+		final EditText input = new EditText(this);
+		// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+		input.setInputType(InputType.TYPE_CLASS_TEXT);
+		builder.setView(input);
+
+		// Set up the buttons
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+        		String note = input.getText().toString();
+        		mapView.addMapItem(note, Type.NOTE);		
+		    }
+		});
+		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+		    	dialog.cancel();
+		        
+		    }
+		});
+
+		builder.show();
+    }
 
   
 }

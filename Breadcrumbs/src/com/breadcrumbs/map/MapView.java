@@ -22,14 +22,15 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Toast;
 
 import com.breadcrumbs.R;
 import com.breadcrumbs.ViewPictureActivity;
+import com.breadcrumbs.helpers.MapItem;
 import com.breadcrumbs.helpers.SerializableRoute;
 
 
@@ -53,17 +54,18 @@ public class MapView extends View
 	
 	private Bitmap locationMarker;
 	private Bitmap cameraIcon;
+	private Bitmap noteIcon;
 	
 	protected PointF currentLocation;
 	
 	protected Paint paint,textPaint,linePaint;
 
 	protected ArrayList<PointF> locationArray;
-	protected ArrayList<Pair<PointF,String>> imageArray;
-	protected ArrayList<PointF> imageLocationArray;
-	
+	protected ArrayList<MapItem> mapItemsArray;
+	protected ArrayList<PointF> mapItemsLocationArray;
+
 	private Matrix transform;
-	
+		
 	private Path path;
 	
 	float initPixToMeter ;
@@ -82,13 +84,14 @@ public class MapView extends View
 		scaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureListener());
 		
 		locationArray = new ArrayList<PointF>();
-		imageArray = new ArrayList<Pair<PointF,String>>();
-		imageLocationArray = new ArrayList<PointF>();
+		mapItemsArray = new ArrayList<MapItem>();
+		mapItemsLocationArray = new ArrayList<PointF>();
 		transform = new Matrix();
 		path = new Path();
 		
 		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.location_marker);
 		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
+		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.note);
 		
 		
 		initPaint();
@@ -153,11 +156,11 @@ public class MapView extends View
 			path.lineTo(point.x, point.y);
 			
 		}
-		imageLocationArray.clear();
-		for (Iterator<Pair<PointF, String>> iterator = imageArray.iterator(); iterator
+		mapItemsLocationArray.clear();
+		for (Iterator<MapItem> iterator = mapItemsArray.iterator(); iterator
 				.hasNext();) {
-			Pair<PointF, String> pair = (Pair<PointF, String>) iterator.next();
-			imageLocationArray.add(transformPoint(pair.first));
+			MapItem mapItem = (MapItem) iterator.next();
+			mapItemsLocationArray.add(transformPoint(mapItem.getLocation()));
 		}
 		
     }
@@ -182,7 +185,7 @@ public class MapView extends View
 		invalidate();
 	}
 	
-	public String calcZoomFactor(){
+	protected String calcZoomFactor(){
 		float values[] = new float[9];
 	    transform.getValues(values);
 	    float scaleX = values[Matrix.MSCALE_X];
@@ -203,14 +206,22 @@ public class MapView extends View
 	    }
 	    canvas.drawPath(path, paint);
 	    
-	    //draw camera icons
-	    for (Iterator<PointF> iterator = imageLocationArray.iterator(); iterator.hasNext();) {
-			PointF point = (PointF) iterator.next();
-			canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
+	    
+	    //draw map items
+	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
+			PointF point = mapItemsLocationArray.get(i);
+			switch (mapItemsArray.get(i).getType()) {
+			case PICTURE:
+				canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
+				break;
+			case NOTE:
+				canvas.drawBitmap(noteIcon, point.x, point.y-noteIcon.getHeight()/2, null);
+				break;
+			}
+			
+			
 		}
-	    
-	    
-
+	   
 	    canvas.drawText(calcZoomFactor(), 10, 30, textPaint);
 
 	    canvas.drawLine(10, 35, 60, 35, linePaint);
@@ -294,7 +305,7 @@ public class MapView extends View
 			baos = new ByteArrayOutputStream();
 			oos = new ObjectOutputStream(baos);
 			
-			SerializableRoute sroute = new SerializableRoute(locationArray,transform, imageArray);
+			SerializableRoute sroute = new SerializableRoute(locationArray,transform, mapItemsArray);
 			sroute.removeViewOffset(viewWidth/2, viewHeight/2);
 			oos.writeObject(sroute);
 			byte[] buf = baos.toByteArray();
@@ -321,7 +332,7 @@ public class MapView extends View
 			sroute.addViewOffset(viewWidth/2, viewHeight/2);
 			locationArray = sroute.getLocationArray();
 			transform = sroute.getTransform();
-			imageArray = sroute.getImageArray();
+			mapItemsArray = sroute.getMapItemsArray();
 			recalculatePath();
 			invalidate();
 			
@@ -355,14 +366,23 @@ public class MapView extends View
 		public boolean onTouch(View v, MotionEvent event) {
 			switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-				ArrayList<String> paths = new ArrayList<String>();
-				imageClicked(event.getX(), event.getY(), paths);
-				if (paths.size() > 0) {
+				ArrayList<MapItem> items = new ArrayList<MapItem>();
+				itemClicked(event.getX(), event.getY(), items);
+				if (items.size() > 0) {
 					//handle only first one for now
 					//TODO handle more
-					Intent i = new Intent(context,ViewPictureActivity.class);
-					i.putExtra("imagepath",	paths.get(0));
-					context.startActivity(i);
+					MapItem item = items.get(0);
+					switch (item.getType()) {
+					case PICTURE:
+						Intent i = new Intent(context,ViewPictureActivity.class);
+						i.putExtra("imagepath",	item.getData());
+						context.startActivity(i);
+						break;
+					case NOTE:
+						Toast.makeText(context, item.getData(), Toast.LENGTH_SHORT).show();
+						break;
+					}
+
 				}
 				break;
 			}
@@ -370,12 +390,12 @@ public class MapView extends View
 			return false;
 		}
 		
-		private void imageClicked(float x,float y,ArrayList<String> paths) {
-			for (int i=0; i<imageLocationArray.size(); i++){
-				PointF point = imageLocationArray.get(i);
+		private void itemClicked(float x,float y,ArrayList<MapItem> items) {
+			for (int i=0; i<mapItemsLocationArray.size(); i++){
+				PointF point = mapItemsLocationArray.get(i);
 				if ((point.x-CAMERA_ICON_SIZE < x) && (x < point.x+CAMERA_ICON_SIZE) &&
 					(point.y-CAMERA_ICON_SIZE < y) && (y < point.y+CAMERA_ICON_SIZE)) {
-					paths.add(imageArray.get(i).second);
+					items.add(mapItemsArray.get(i));
 				}
 			}
 		}
@@ -383,6 +403,12 @@ public class MapView extends View
 		
 	}
 	
+	//returns true if got at least 1 gps location update
+	public Boolean isInitialized() {
+		return locationArray.size()>0;
+	}
+	
+
 	
 	
 }
