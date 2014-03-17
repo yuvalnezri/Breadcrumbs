@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
@@ -26,31 +25,29 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.breadcrumbs.db.DbManager;
+import com.breadcrumbs.compass.CompassManager;
+import com.breadcrumbs.compass.CompassManagerListener;
 import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.helpers.MapItem.Type;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.RecordMapView;
 
-public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener {
+public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener, CompassManagerListener {
 	
 	private final static int CAMERA_REQUEST = 100;
 	
-	LocationManager locationManager;
-	GoogleServicesManager gsManager;
+	private LocationManager locationManager;
+	private GoogleServicesManager gsManager;
+	private CompassManager compassManager;
 	
-	String routeName;
 	
-	RecordMapView mapView;
-	DbManager dbManager;
+	private String routeName;
+	
+	private RecordMapView mapView;
 
-	Button  drawButton, startLocationButton, stopLocationButton;
+	private Button  drawButton, startLocationButton, stopLocationButton;
 	
-	String note;
-	
-	
-	Uri imageUri;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +60,9 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         
         gsManager = new GoogleServicesManager(this);
         
+        compassManager = new CompassManager(this);
+        
         mapView = (RecordMapView) findViewById(R.id.mapView);
-        dbManager = new DbManager(this);
         
         drawButton = (Button) findViewById(R.id.draw_btn);
         startLocationButton = (Button) findViewById(R.id.start_location_btn);
@@ -85,7 +83,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 	public boolean onOptionsItemSelected(MenuItem item){
          switch (item.getItemId()){
         	case R.id.focus_btn:
-	        	mapView.focus();
+	        	mapView.nextViewMode();
 	    		return true;
         	case R.id.new_btn :
         		mapView.reset();
@@ -112,6 +110,8 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 			locationManager.start();
 			locationManager.addLocationManagerListener(this);
 		}
+		compassManager.addCompassManagerListener(this);
+		
 	}
 
 	@Override
@@ -120,6 +120,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 		if (gsManager.isGooglePlayServicesConnected){
 			locationManager.resume();
 		}
+		compassManager.onResume();
 	}
 	
 	@Override
@@ -128,6 +129,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 		if (gsManager.isGooglePlayServicesConnected){
 			locationManager.pause();
 		}
+		compassManager.onPause();
 	}
 	
 	@Override
@@ -267,5 +269,10 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 		builder.show();
     }
 
+    @Override
+    public void onCompassUpdate(float azimut) {
+    	mapView.newCompassUpdate(azimut);
+    	
+    }
   
 }

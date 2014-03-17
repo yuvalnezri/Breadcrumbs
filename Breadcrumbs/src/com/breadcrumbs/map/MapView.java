@@ -38,7 +38,13 @@ public class MapView extends View
 
 {
 	
-	private final int INITIAL_SCALE = 10000;
+	protected final int INITIAL_SCALE = 10000;
+	private final int LOCATION_MARKER_SCALE=3;
+	protected final int SCALE_METER_LENGTH_PIX = 50;
+	
+	protected enum MapViewMode { NORMAL , FOCUSED, ORIENTIATED_FOCUS }
+	
+	protected MapViewMode mode;
 	
 	//Needed to pass to View Constructor
 	protected Context context;
@@ -56,6 +62,7 @@ public class MapView extends View
 	private Bitmap cameraIcon;
 	private Bitmap noteIcon;
 	
+	//NOT transformed location coordinates
 	protected PointF currentLocation;
 	
 	protected Paint paint,textPaint,linePaint;
@@ -64,8 +71,12 @@ public class MapView extends View
 	protected ArrayList<MapItem> mapItemsArray;
 	protected ArrayList<PointF> mapItemsLocationArray;
 
-	private Matrix transform;
-		
+	protected Matrix transform;
+	protected Matrix locationMarkerTransform;
+	protected Matrix pathRotation;
+	
+	private float currentAzimut=0f;
+	
 	private Path path;
 	
 	float initPixToMeter ;
@@ -87,83 +98,29 @@ public class MapView extends View
 		mapItemsArray = new ArrayList<MapItem>();
 		mapItemsLocationArray = new ArrayList<PointF>();
 		transform = new Matrix();
+		locationMarkerTransform = new Matrix();
+		
+		pathRotation = new Matrix();
+
 		path = new Path();
 		
-		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.location_marker);
+		mode = MapViewMode.NORMAL;
+		
+		
+		
+		
+		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.arrow_up);
 		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
 		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.note);
 		
 		
 		initPaint();
 	}
-
-	public void newLocationUpdate(Location location) {
-		if (locationArray.isEmpty()) {
-			Location newL = new Location(location);
-			newL.setLatitude(location.getLatitude()+1);
-			initPixToMeter = newL.distanceTo(location);
-		}
-	}
 	
-	protected PointF transformPoint(PointF point) {
-		float[] arr = new float[] {point.x,point.y};
-		transform.mapPoints(arr);
-		return new PointF(arr[0],arr[1]);
-	}
 	
-	private ArrayList<PointF> transformArray(ArrayList<PointF> array){
-		ArrayList<PointF> newArr = new ArrayList<PointF>();
-		for (Iterator<PointF> iterator = array.iterator(); iterator.hasNext();) {
-			PointF point = (PointF) iterator.next();
-			newArr.add(transformPoint(point));
-		}
-		return newArr;
-	}
-	
-	//initialize transformation matrix
-	protected void initTransform(PointF start) {
-		//add start location offset
-		transform.postTranslate(-start.x, -start.y);
-		//add initial scale
-		transform.postScale(INITIAL_SCALE, INITIAL_SCALE);
-		//add view offset
-		transform.postTranslate(viewWidth/2, viewHeight/2);
-	}
-	
-	protected void addPointToPath (PointF point) {
-		PointF transformedPoint = transformPoint(point);
-		
-		if (locationArray.isEmpty()) {
-			path.moveTo(transformedPoint.x, transformedPoint.y);
-		} else {
-			path.lineTo(transformedPoint.x, transformedPoint.y);
-		}
-	}
-	
-	protected void recalculatePath() {
-		path.rewind();
-		
-		if (locationArray.isEmpty())
-			return;
-		
-		ArrayList<PointF> transformedArray = transformArray(locationArray);
-		
-		path.moveTo(transformedArray.get(0).x, transformedArray.get(0).y);
-		
-		for (Iterator<PointF> iterator = transformedArray.iterator(); iterator
-				.hasNext();) {
-			PointF point = (PointF) iterator.next();
-			path.lineTo(point.x, point.y);
-			
-		}
-		mapItemsLocationArray.clear();
-		for (Iterator<MapItem> iterator = mapItemsArray.iterator(); iterator
-				.hasNext();) {
-			MapItem mapItem = (MapItem) iterator.next();
-			mapItemsLocationArray.add(transformPoint(mapItem.getLocation()));
-		}
-		
-    }
+	/*************************************************************************************
+	*Initialization functions
+	**************************************************************************************/
 	
 	
 	
@@ -178,6 +135,7 @@ public class MapView extends View
 		
 		if (!locationArray.isEmpty()){
 			transform.postTranslate(w/2-oldw/2,h/2-oldh/2);
+			recalculateLocationMarkerTransform();
 			recalculatePath();
 		}
 		
@@ -185,47 +143,15 @@ public class MapView extends View
 		invalidate();
 	}
 	
-	protected String calcZoomFactor(){
-		float values[] = new float[9];
-	    transform.getValues(values);
-	    float scaleX = values[Matrix.MSCALE_X];
-	    float factor = initPixToMeter / scaleX * 50;
-	    DecimalFormat df = new DecimalFormat("#.00");
-	    String formated = df.format(factor);
-	    return formated;
-	}
-	@Override
-	protected void onDraw(Canvas canvas) {
-	    super.onDraw(canvas);
-	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-	    //draw location marker
-	    if (currentLocation!=null) {
-	    	PointF transformedCurrent = transformPoint(currentLocation);
-	    	canvas.drawBitmap(locationMarker, transformedCurrent.x-locationMarker.getWidth()/2,
-	    			transformedCurrent.y-locationMarker.getHeight(), null);
-	    }
-	    canvas.drawPath(path, paint);
-	    
-	    
-	    //draw map items
-	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
-			PointF point = mapItemsLocationArray.get(i);
-			switch (mapItemsArray.get(i).getType()) {
-			case PICTURE:
-				canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
-				break;
-			case NOTE:
-				canvas.drawBitmap(noteIcon, point.x, point.y-noteIcon.getHeight()/2, null);
-				break;
-			}
-			
-			
-		}
-	   
-	    canvas.drawText(calcZoomFactor(), 10, 30, textPaint);
+	
 
-	    canvas.drawLine(10, 35, 60, 35, linePaint);
+	
+	
+	//returns true if got at least 1 gps location update
+	public Boolean isInitialized() {
+		return locationArray.size()>0;
 	}
+	
 	
 	private void initPaint(){
 		paint = new Paint();
@@ -240,37 +166,67 @@ public class MapView extends View
 		textPaint.setTextSize(30f);
 		textPaint.setColor(Color.BLUE);
 		linePaint = new Paint();
-		linePaint.setStrokeWidth(2);
+		linePaint.setStrokeWidth(5);
 		linePaint.setColor(Color.BLUE);
 	}
 	
-	public PointF getPointFFromLocation(Location location) {
-		return new PointF((float) location.getLatitude(), (float) location.getLongitude());
+	
+	
+	/*************************************************************************************
+	*Event related functions
+	**************************************************************************************/
+	public void newLocationUpdate(Location location) {
+		if (locationArray.isEmpty())
+			return;
+		switch (mode) {
+		case NORMAL:
+			recalculateLocationMarkerTransform();
+			invalidate();
+			break;
+		case FOCUSED:
+			focus();
+			break;
+		case ORIENTIATED_FOCUS:
+			orientAndFocus();
+			break;
+		default:
+			break;
+		}
+		
 	}
 	
-	public void reset() {
-		locationArray = new ArrayList<PointF>();
-		transform = new Matrix();
-		path = new Path();	
+	
+	public void newCompassUpdate(float azimut) {
+		currentAzimut = azimut;
+		switch (mode) {
+		case NORMAL:
+			recalculateLocationMarkerTransform();
+			invalidate();
+			break;
+		case FOCUSED:
+			recalculateLocationMarkerTransform();
+			invalidate();
+			break;
+		case ORIENTIATED_FOCUS:
+			orientAndFocus();
+			break;
+		default:
+			break;
+		}
 		invalidate();
 	}
 	
-	public void drawDebugRoute() { 
-		reset();
-		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
-		locationArray.add(new PointF(viewWidth/2-50, viewHeight/2+50));
-		locationArray.add(new PointF(viewWidth/2+50, viewHeight/2+50));
-		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
-		recalculatePath();
-		invalidate();
-	}
 	
 	private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-	
+		
 		@Override
 		public boolean onScroll(MotionEvent e1,MotionEvent e2, float distanceX, float distanceY) {
+			//allow scrolling only in normal mode
+			if (mode != MapViewMode.NORMAL)
+				return true;
 			transform.postTranslate(-distanceX, -distanceY);
 			recalculatePath();
+			recalculateLocationMarkerTransform();
 			invalidate();
 			return true;
 		}
@@ -289,6 +245,7 @@ public class MapView extends View
 			float factor = detector.getScaleFactor();
 			transform.postScale(factor,factor,scaleFocus.x,scaleFocus.y);
 			recalculatePath();
+			recalculateLocationMarkerTransform();
 			invalidate();
 			return true;
 		}
@@ -298,67 +255,6 @@ public class MapView extends View
 		}
 	}	
 	
-	public byte[] serializeRoute() {
-		ByteArrayOutputStream baos;
-		ObjectOutputStream oos;
-		try{
-			baos = new ByteArrayOutputStream();
-			oos = new ObjectOutputStream(baos);
-			
-			SerializableRoute sroute = new SerializableRoute(locationArray,transform, mapItemsArray);
-			sroute.removeViewOffset(viewWidth/2, viewHeight/2);
-			oos.writeObject(sroute);
-			byte[] buf = baos.toByteArray();
-			
-			oos.close();
-			baos.close();
-			
-			return buf;
-		} catch (IOException ex) {
-			
-			Log.e(VIEW_LOG_TAG, "error", ex);
-			return new byte[] {};
-		}
-	}
-	
-	public void loadRouteFromByteArray(byte[] buf) {
-		ByteArrayInputStream bais;
-		ObjectInputStream ois;
-		try {
-			bais = new ByteArrayInputStream(buf);
-			ois = new ObjectInputStream(bais);
-			
-			SerializableRoute sroute = (SerializableRoute) ois.readObject();
-			sroute.addViewOffset(viewWidth/2, viewHeight/2);
-			locationArray = sroute.getLocationArray();
-			transform = sroute.getTransform();
-			mapItemsArray = sroute.getMapItemsArray();
-			recalculatePath();
-			invalidate();
-			
-			ois.close();
-			bais.close();
-			
-		} catch (IOException ex) {
-			Log.e(VIEW_LOG_TAG, "error", ex);
-		} catch (ClassNotFoundException ex) {
-			Log.e(VIEW_LOG_TAG, "error", ex);
-		}
-		
-	}
-	
-	public void focus() {
-		if(currentLocation == null){
-			return;
-		}
-		PointF temp = transformPoint(currentLocation);
-		transform.postTranslate(-temp.x, -temp.y);
-		//post scaling to defualt
-		transform.postTranslate(viewWidth/2, viewHeight/2);
-		recalculatePath();
-		invalidate();
-	}
-
 	private class myTouchListener implements OnTouchListener {
 		static final int CAMERA_ICON_SIZE=20;
 		
@@ -403,9 +299,308 @@ public class MapView extends View
 		
 	}
 	
-	//returns true if got at least 1 gps location update
-	public Boolean isInitialized() {
-		return locationArray.size()>0;
+	
+	public void setViewMode(MapViewMode newMode) {
+		switch (newMode) {
+		case NORMAL:
+			if (mode == MapViewMode.NORMAL)
+				return;
+			mode = MapViewMode.NORMAL;
+			pathRotation.reset();
+			recalculateLocationMarkerTransform();
+			recalculatePath();
+			invalidate();
+			break;
+		case FOCUSED:
+			if (mode == MapViewMode.FOCUSED)
+				return;
+			mode = MapViewMode.FOCUSED;
+			recalculateLocationMarkerTransform();
+			focus();
+			break;
+		case ORIENTIATED_FOCUS:
+			if (mode == MapViewMode.ORIENTIATED_FOCUS)
+				return;
+			mode = MapViewMode.ORIENTIATED_FOCUS;
+			recalculateLocationMarkerTransform();
+			orientAndFocus();
+			break;
+		default:
+			break;
+		}
+		
+	}
+	
+	
+	public void nextViewMode() {
+		if (mode == MapViewMode.NORMAL) {
+			setViewMode(MapViewMode.FOCUSED);
+			return;
+		}
+			
+		if (mode == MapViewMode.FOCUSED) {
+			setViewMode(MapViewMode.ORIENTIATED_FOCUS);
+			return;
+		}
+			
+		if (mode == MapViewMode.ORIENTIATED_FOCUS ) {
+			setViewMode(MapViewMode.NORMAL);
+			return;
+		}
+	}
+	/*************************************************************************************
+	*Transformation functions
+	**************************************************************************************/
+	
+	
+	public PointF getPointFFromLocation(Location location) {
+		return new PointF((float) location.getLongitude(), (float) location.getLatitude());
+	}
+
+
+	//all path/map item coordinates that are going to be drawn must pass threw here!!
+	protected PointF transformPoint(PointF point,Matrix matrix) {
+		float[] arr = new float[] {point.x,point.y};
+		matrix.mapPoints(arr);
+		
+		return new PointF(arr[0],arr[1]);
+	}
+	
+	
+	private ArrayList<PointF> transformArray(ArrayList<PointF> array, Matrix matrix){
+		ArrayList<PointF> newArr = new ArrayList<PointF>();
+		for (Iterator<PointF> iterator = array.iterator(); iterator.hasNext();) {
+			PointF point = (PointF) iterator.next();
+			newArr.add(transformPoint(point,matrix));
+		}
+		return newArr;
+	}
+	
+	
+	protected String calcZoomFactor(){
+		float values[] = new float[9];
+	    transform.getValues(values);
+	    float scaleX = values[Matrix.MSCALE_X];
+	    float factor = initPixToMeter / scaleX * SCALE_METER_LENGTH_PIX;
+	    DecimalFormat df = new DecimalFormat("#.00");
+	    String formated = df.format(factor);
+	    return formated;
+	}
+	
+
+	//only adds 1 point to path without recalculating path
+	//point needs to be clean(true long/lat)
+	protected void addPointToPath (PointF point) {
+		PointF transformedPoint = transformPoint(point,transform);
+		
+		if (locationArray.isEmpty()) {
+			path.moveTo(transformedPoint.x, transformedPoint.y);
+		} else {
+			path.lineTo(transformedPoint.x, transformedPoint.y);
+		}
+	}
+	
+	//recalculates path and mapitemslocationarray subject to transform and rotate matrices
+	protected void recalculatePath() {
+		path.rewind();
+		
+		if (locationArray.isEmpty())
+			return;
+		
+		ArrayList<PointF> transformedArray = transformArray(locationArray,transform);
+		if (mode == MapViewMode.ORIENTIATED_FOCUS)
+			transformedArray = transformArray(transformedArray, pathRotation);
+		
+		path.moveTo(transformedArray.get(0).x, transformedArray.get(0).y);
+		
+		for (Iterator<PointF> iterator = transformedArray.iterator(); iterator
+				.hasNext();) {
+			PointF point = (PointF) iterator.next();
+			path.lineTo(point.x, point.y);
+			
+		}
+		mapItemsLocationArray.clear();
+		for (Iterator<MapItem> iterator = mapItemsArray.iterator(); iterator
+				.hasNext();) {
+			MapItem mapItem = (MapItem) iterator.next();
+			PointF newPoint = transformPoint(mapItem.getLocation(),transform);
+			if (mode ==MapViewMode.ORIENTIATED_FOCUS)
+				newPoint= transformPoint(newPoint,pathRotation);
+			
+			mapItemsLocationArray.add(newPoint);
+		}
+		
+    }
+	
+	
+	
+	protected void recalculateLocationMarkerTransform() {
+		
+		switch (mode) {
+		case NORMAL:
+		case FOCUSED:
+			if(currentLocation == null)
+				return;
+			PointF transformedCurrent = transformPoint(currentLocation,transform);
+			locationMarkerTransform.reset();
+			locationMarkerTransform.setRotate(currentAzimut*360/(2*3.14159f), locationMarker.getWidth()/2, locationMarker.getHeight()/2);
+			locationMarkerTransform.postScale(LOCATION_MARKER_SCALE,LOCATION_MARKER_SCALE);
+			locationMarkerTransform.postTranslate(transformedCurrent.x-locationMarker.getWidth()/2,
+	    			transformedCurrent.y-locationMarker.getHeight()/2);
+			break;
+		
+		case ORIENTIATED_FOCUS:
+			locationMarkerTransform.reset();
+			locationMarkerTransform.postScale(LOCATION_MARKER_SCALE,LOCATION_MARKER_SCALE);
+			locationMarkerTransform.postTranslate(viewWidth/2-locationMarker.getWidth()/2,
+	    			viewHeight/2-locationMarker.getHeight()/2);
+		default:
+			break;
+		}
+
+	}
+	
+	public void focus() {
+		if(currentLocation == null){
+			return;
+		}
+		PointF temp = transformPoint(currentLocation, transform);
+		transform.postTranslate(-temp.x, -temp.y);
+		//post scaling to defualt
+		transform.postTranslate(viewWidth/2, viewHeight/2);
+		recalculateLocationMarkerTransform();
+		recalculatePath();
+		invalidate();
+	}
+	
+	private void orientAndFocus() {
+		if(currentLocation == null) 
+			return;
+		
+		PointF temp = transformPoint(currentLocation, transform);
+		transform.postTranslate(-temp.x, -temp.y);
+		//post scaling to defualt
+		transform.postTranslate(viewWidth/2, viewHeight/2);
+		
+		pathRotation.setRotate(-currentAzimut*360/(2*3.14159f),viewWidth/2,viewHeight/2);
+		recalculatePath();
+		invalidate();
+		
+	}
+	
+	
+	/*************************************************************************************
+	*Drawing functions
+	**************************************************************************************/
+
+	
+	@Override
+	protected void onDraw(Canvas canvas) {
+	    super.onDraw(canvas);
+	    
+	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+	    //draw path
+	    canvas.drawPath(path, paint);
+	    
+	    //draw location marker
+	    canvas.drawBitmap(locationMarker, locationMarkerTransform, null);
+	    
+	    //draw map items
+	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
+			PointF point = mapItemsLocationArray.get(i);
+			switch (mapItemsArray.get(i).getType()) {
+			case PICTURE:
+				canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
+				break;
+			case NOTE:
+				canvas.drawBitmap(noteIcon, point.x, point.y-noteIcon.getHeight()/2, null);
+				break;
+			}
+			
+			
+		}
+	   
+	    //draw scale meter
+	    canvas.drawText(calcZoomFactor() + " m", 10 + SCALE_METER_LENGTH_PIX + 5, 35, textPaint);
+	    canvas.drawLine(10, 35, 10+SCALE_METER_LENGTH_PIX, 35, linePaint);
+	}
+	
+	
+	public void reset() {
+		locationArray = new ArrayList<PointF>();
+		transform = new Matrix();
+		path = new Path();	
+		invalidate();
+	}
+	
+	public void drawDebugRoute() { 
+		reset();
+		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
+		locationArray.add(new PointF(viewWidth/2-50, viewHeight/2+50));
+		locationArray.add(new PointF(viewWidth/2+50, viewHeight/2+50));
+		locationArray.add(new PointF(viewWidth/2, viewHeight/2));
+		recalculatePath();
+		invalidate();
+	}
+	
+
+	
+	/*************************************************************************************
+	*serialization functions
+	**************************************************************************************/
+	
+	
+	
+	public byte[] serializeRoute() {
+		ByteArrayOutputStream baos;
+		ObjectOutputStream oos;
+		try{
+			baos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(baos);
+			
+			SerializableRoute sroute = new SerializableRoute(locationArray,transform, mapItemsArray,initPixToMeter);
+			sroute.removeViewOffset(viewWidth/2, viewHeight/2);
+			oos.writeObject(sroute);
+			byte[] buf = baos.toByteArray();
+			
+			oos.close();
+			baos.close();
+			
+			return buf;
+		} catch (IOException ex) {
+			
+			Log.e(VIEW_LOG_TAG, "error", ex);
+			return new byte[] {};
+		}
+	}
+	
+	
+
+	public void loadRouteFromByteArray(byte[] buf) {
+		ByteArrayInputStream bais;
+		ObjectInputStream ois;
+		try {
+			bais = new ByteArrayInputStream(buf);
+			ois = new ObjectInputStream(bais);
+			
+			SerializableRoute sroute = (SerializableRoute) ois.readObject();
+			sroute.addViewOffset(viewWidth/2, viewHeight/2);
+			locationArray = sroute.getLocationArray();
+			transform = sroute.getTransform();
+			mapItemsArray = sroute.getMapItemsArray();
+			initPixToMeter = sroute.getInitPixToMeter();
+			recalculatePath();
+			invalidate();
+			
+			ois.close();
+			bais.close();
+			
+		} catch (IOException ex) {
+			Log.e(VIEW_LOG_TAG, "error", ex);
+		} catch (ClassNotFoundException ex) {
+			Log.e(VIEW_LOG_TAG, "error", ex);
+		}
+		
 	}
 	
 

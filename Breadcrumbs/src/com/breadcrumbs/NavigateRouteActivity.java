@@ -13,16 +13,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 //import android.widget.Button;
 
+import com.breadcrumbs.compass.CompassManager;
+import com.breadcrumbs.compass.CompassManagerListener;
 import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.NavigationMapView;
 
-public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener  {
+public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener, CompassManagerListener  {
 	NavigationMapView mapView;
 	
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
+	CompassManager compassManager;
 	//Button focusButton;
 	
 	@Override
@@ -48,6 +51,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		
         locationManager = new LocationManager(this);
         gsManager = new GoogleServicesManager(this);
+        compassManager = new CompassManager(this);
 		
 	}
 	
@@ -61,7 +65,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 	public boolean onOptionsItemSelected(MenuItem item){
          switch (item.getItemId()){
         	case R.id.focus_btn:
-	        	mapView.focus();
+	        	mapView.nextViewMode();
 	    		return true;
         
         	default:
@@ -84,6 +88,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 			locationManager.start();
 			locationManager.addLocationManagerListener(this);
 		}
+		compassManager.addCompassManagerListener(this);
 	}
 
 	@Override
@@ -92,6 +97,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		if (gsManager.isGooglePlayServicesConnected){
 			locationManager.resume();
 		}
+		compassManager.onResume();
 	}
 	
 	@Override
@@ -100,6 +106,7 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
 		if (gsManager.isGooglePlayServicesConnected){
 			locationManager.pause();
 		}
+		compassManager.onPause();
 	}
 	
 	@Override
@@ -138,6 +145,12 @@ public class NavigateRouteActivity extends FragmentActivity implements LocationM
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
     	gsManager.onActivityResult(requestCode, resultCode, data);
+    }
+    
+    @Override
+    public void onCompassUpdate(float azimut) {
+    	mapView.newCompassUpdate(azimut);
+    	
     }
     
     

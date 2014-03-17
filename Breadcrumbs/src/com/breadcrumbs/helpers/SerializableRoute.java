@@ -18,11 +18,15 @@ public class SerializableRoute implements Serializable {
 	private float[] matrix;
 	private ArrayList<MapItem> mapItemsArray;
 	
-	public SerializableRoute(ArrayList<PointF> locationArray, Matrix matrix, ArrayList<MapItem> mapItemsArray) {
+	private float initPixToMeter;
+	
+	public SerializableRoute(ArrayList<PointF> locationArray, Matrix matrix, ArrayList<MapItem> mapItemsArray
+			, float initPixToMeter) {
 		this.loactionArray = getPointArrayFromArrayList(locationArray);
 		this.matrix = new float[9];
 		this.mapItemsArray = mapItemsArray;
 		matrix.getValues(this.matrix);
+		this.initPixToMeter = initPixToMeter;
 	}
 	
 	public void removeViewOffset(int viewWidth ,int viewHeight) {
@@ -91,5 +95,9 @@ public class SerializableRoute implements Serializable {
 	
 	public ArrayList<MapItem> getMapItemsArray() {
 		return mapItemsArray;
+	}
+	
+	public float getInitPixToMeter() {
+		return initPixToMeter;
 	}
 }

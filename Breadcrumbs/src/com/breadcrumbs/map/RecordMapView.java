@@ -11,7 +11,7 @@ import com.breadcrumbs.helpers.MapItem.Type;
 
 public class RecordMapView extends MapView {
 	
-	
+	private final static int  INITIAL_PIX_TO_METER_SCALE = 50;
 	
 	
 	public RecordMapView(Context context, AttributeSet attrs) {
@@ -20,15 +20,39 @@ public class RecordMapView extends MapView {
 
 	@Override
 	public void newLocationUpdate(Location location) {
-		super.newLocationUpdate(location);
+
 		PointF point = getPointFFromLocation(location);
-		if (locationArray.isEmpty()) {
-			initTransform(point);
-		}
-		addPointToPath(point);
-		locationArray.add(point);
 		currentLocation = point;
-		invalidate();
+		
+		if (locationArray.isEmpty()) {
+			//initialze scale meter
+			Location newL = new Location(location);
+			newL.setLatitude(location.getLatitude()+1);
+			initPixToMeter = newL.distanceTo(location);
+			
+			//initialize transformation matrix
+			//invert y axis
+			transform.postScale(1,-1);
+			//set initial scale to 20 pix = 5 meter
+			float initScale = initPixToMeter * SCALE_METER_LENGTH_PIX / INITIAL_PIX_TO_METER_SCALE;
+			transform.postScale(initScale, initScale);
+			
+			
+			locationArray.add(point);
+			focus();
+			super.newLocationUpdate(location);
+			return;
+			
+		}
+		
+		locationArray.add(point);
+		
+		if (mode == MapViewMode.NORMAL) 
+			addPointToPath(point);
+
+		super.newLocationUpdate(location);
+
+		
 	}
 
 	public void addMapItem(String data,Type type) {
@@ -37,7 +61,9 @@ public class RecordMapView extends MapView {
 			return;
 		}
 		mapItemsArray.add(new MapItem(currentLocation, data, type));
-		PointF point = transformPoint(currentLocation);
+		PointF point = transformPoint(currentLocation,transform);
+		if (mode == MapViewMode.ORIENTIATED_FOCUS)
+			point = transformPoint(currentLocation,pathRotation);
 		mapItemsLocationArray.add(point);
 		invalidate();
 		
