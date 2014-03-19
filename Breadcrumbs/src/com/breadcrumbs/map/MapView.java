@@ -11,6 +11,7 @@ import java.util.Iterator;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,6 +22,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.location.Location;
 import android.util.AttributeSet;
+//import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -139,7 +141,20 @@ public class MapView extends View
 			recalculatePath();
 		}
 		
-		canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		Resources res = getResources();
+		Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.sim_frst4);
+		//Canvas canvas = new Canvas(bitmap.copy(Bitmap.Config.ARGB_8888, true));
+		
+		canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+		//canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		
+		
+	//	Bitmap animation = BitmapFactory.decodeResource(mContext.getResources(), resourceId, mBitmapOptions); //Get a bitmap from a image file
+
+		// Create a bitmap for the part of the screen that needs updating.
+	//	Bitmap bitmap = Bitmap.createBitmap(animation.getWidth(), animation.getHeight(), BITMAP_CONFIG);
+	//	bitmap.setDensity(DisplayMetrics.DENSITY_DEFAULT);
+	//	Canvas canvas = new Canvas(bitmap);
 		invalidate();
 	}
 	
@@ -497,7 +512,6 @@ public class MapView extends View
 	@Override
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
-	    
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
 	    //draw path
 	    canvas.drawPath(path, paint);

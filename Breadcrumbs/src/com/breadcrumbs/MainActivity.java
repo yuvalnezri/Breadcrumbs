@@ -1,24 +1,30 @@
 package com.breadcrumbs;
 
-import android.app.Activity;
+//import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+//import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.provider.MediaStore;
+//import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import com.breadcrumbs.db.DbManager;
 
 
-public class MainActivity extends Activity implements OnClickListener{
+public class MainActivity extends ActionBarActivity implements OnClickListener{
 	
 	
 	static final int ROUTE_REQUEST = 1;
@@ -156,4 +162,28 @@ public class MainActivity extends Activity implements OnClickListener{
 			}
 		}
 	}
+	
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//	    // Inflate the menu items for use in the action bar
+//	    
+//	    getMenuInflater().inflate(R.menu.action_bar, menu);
+//	    return super.onCreateOptionsMenu(menu);
+//	}
+//	
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//	    // Handle presses on the action bar items
+//	    switch (item.getItemId()) {
+//	        case R.id.picture_btn:
+//	        	//Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        		//startActivityForResult(intent, CAMERA_REQUEST);
+//	            return true;
+//	        case R.id.action_settings:
+//	            openSettings();
+//	            return true;
+//	        default:
+//	            return super.onOptionsItemSelected(item);
+//	    }
+//	}
 }

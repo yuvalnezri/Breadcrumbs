@@ -1,10 +1,12 @@
 package com.breadcrumbs;
 
 
+//import android.app.ActionBar;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+//import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 //import android.widget.Button;
+//import android.support.v7.app.ActionBar;
+
 
 import com.breadcrumbs.compass.CompassManager;
 import com.breadcrumbs.compass.CompassManagerListener;
@@ -20,7 +24,7 @@ import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.NavigationMapView;
 
-public class NavigateRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener, CompassManagerListener  {
+public class NavigateRouteActivity extends ActionBarActivity implements LocationManagerListener, OnClickListener, CompassManagerListener  {
 	NavigationMapView mapView;
 	
 	LocationManager locationManager;

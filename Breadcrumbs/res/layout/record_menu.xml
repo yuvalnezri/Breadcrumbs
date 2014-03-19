@@ -6,7 +6,8 @@
      
 	<item 	android:id="@+id/focus_btn"
 	       	android:icon="@drawable/rsz_cross1"
-	      	android:title="@string/focus"/>
+	      	android:title="@string/focus"
+	      	android:showAsAction="always"/>
 
 	<item 	android:id="@+id/new_btn"
    			android:icon="@drawable/rsz_new"

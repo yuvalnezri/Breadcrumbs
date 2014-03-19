@@ -13,11 +13,12 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
+//import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
+//import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +34,7 @@ import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.RecordMapView;
 
-public class RecordRouteActivity extends FragmentActivity implements LocationManagerListener, OnClickListener, CompassManagerListener {
+public class RecordRouteActivity extends ActionBarActivity implements LocationManagerListener, OnClickListener, CompassManagerListener {
 	
 	private final static int CAMERA_REQUEST = 100;
 	
@@ -46,7 +47,7 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
 	
 	private RecordMapView mapView;
 
-	private Button  drawButton, startLocationButton, stopLocationButton;
+//	private Button  drawButton, startLocationButton, stopLocationButton;
 	
 	
 	@Override
@@ -64,19 +65,19 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
         
         mapView = (RecordMapView) findViewById(R.id.mapView);
         
-        drawButton = (Button) findViewById(R.id.draw_btn);
-        startLocationButton = (Button) findViewById(R.id.start_location_btn);
-        stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
-        drawButton.setOnClickListener(this);
-        startLocationButton.setOnClickListener(this);
-        stopLocationButton.setOnClickListener(this);
+//        drawButton = (Button) findViewById(R.id.draw_btn);
+//        startLocationButton = (Button) findViewById(R.id.start_location_btn);
+//        stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
+//        drawButton.setOnClickListener(this);
+//        startLocationButton.setOnClickListener(this);
+//        stopLocationButton.setOnClickListener(this);
 
     }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
-	    MenuInflater menuInflater = getMenuInflater();
-	    menuInflater.inflate(R.layout.record_menu, menu);
+	    getMenuInflater().inflate(R.layout.record_menu, menu);
+	    getMenuInflater().inflate(R.menu.action_bar, menu);
 	    return true;
 	}
 		 
@@ -143,18 +144,18 @@ public class RecordRouteActivity extends FragmentActivity implements LocationMan
     
     @Override
     public void onClick(View view) {
-    	switch (view.getId()) {
-    	case R.id.draw_btn :
-    		mapView.drawDebugRoute();
-    		break;
-    	case R.id.start_location_btn :
-    		locationManager.start();
-    		break;
-    	
-    	case R.id.stop_location_btn :
-    		locationManager.stop();
-    		break;
-    	}	
+//    	switch (view.getId()) {
+//    	case R.id.draw_btn :
+//    		mapView.drawDebugRoute();
+//    		break;
+//    	case R.id.start_location_btn :
+//    		locationManager.start();
+//    		break;
+//    	
+//    	case R.id.stop_location_btn :
+//    		locationManager.stop();
+//    		break;
+//    	}	
     }
     
     public void saveRouteToDB() {
