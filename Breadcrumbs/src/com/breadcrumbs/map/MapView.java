@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+
 import android.location.Location;
 import android.util.AttributeSet;
 //import android.util.DisplayMetrics;
@@ -61,13 +62,14 @@ public class MapView extends View
 	private Paint canvasPaint;
 	
 	private Bitmap locationMarker;
-	private Bitmap cameraIcon;
 	private Bitmap noteIcon;
-	
+	private Bitmap cameraIcon;
+	private Bitmap houseIcon;
+	private Bitmap focusIcon;
 	//NOT transformed location coordinates
 	protected PointF currentLocation;
 	
-	protected Paint paint,textPaint,linePaint;
+	protected Paint paint,textPaint,linePaint,paint2;
 
 	protected ArrayList<PointF> locationArray;
 	protected ArrayList<MapItem> mapItemsArray;
@@ -82,7 +84,6 @@ public class MapView extends View
 	private Path path;
 	
 	float initPixToMeter ;
-
 	
 	public GestureDetector gestureDetector;
 	public ScaleGestureDetector scaleGestureDetector;
@@ -112,10 +113,10 @@ public class MapView extends View
 		
 		
 		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.arrow_up);
-		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera);
-		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.note);
-		
-		
+		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera127);
+		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.comment27);
+		houseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.house36);
+		focusIcon = BitmapFactory.decodeResource(getResources(), R.drawable.shadow2);
 		initPaint();
 	}
 	
@@ -147,21 +148,11 @@ public class MapView extends View
 		
 		canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
 		//canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-		
-		
-	//	Bitmap animation = BitmapFactory.decodeResource(mContext.getResources(), resourceId, mBitmapOptions); //Get a bitmap from a image file
 
-		// Create a bitmap for the part of the screen that needs updating.
-	//	Bitmap bitmap = Bitmap.createBitmap(animation.getWidth(), animation.getHeight(), BITMAP_CONFIG);
-	//	bitmap.setDensity(DisplayMetrics.DENSITY_DEFAULT);
-	//	Canvas canvas = new Canvas(bitmap);
 		invalidate();
 	}
 	
-	
 
-	
-	
 	//returns true if got at least 1 gps location update
 	public Boolean isInitialized() {
 		return locationArray.size()>0;
@@ -170,17 +161,27 @@ public class MapView extends View
 	
 	private void initPaint(){
 		paint = new Paint();
+		textPaint = new Paint();
+		linePaint = new Paint();
+		paint2 = new Paint();
 		
-		paint.setColor(Color.BLACK);
+		paint.setColor(Color.MAGENTA);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(20);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		textPaint = new Paint();
+		//paint.setAlpha(100);
+		paint2.setColor(Color.CYAN);
+		paint2.setAntiAlias(true);
+		paint2.setStrokeWidth(15);
+		paint2.setStyle(Paint.Style.STROKE);
+		paint2.setStrokeJoin(Paint.Join.ROUND);
+		paint2.setStrokeCap(Paint.Cap.ROUND);
+		
 		textPaint.setTextSize(30f);
 		textPaint.setColor(Color.BLUE);
-		linePaint = new Paint();
+		
 		linePaint.setStrokeWidth(5);
 		linePaint.setColor(Color.BLUE);
 	}
@@ -190,9 +191,9 @@ public class MapView extends View
 	/*************************************************************************************
 	*Event related functions
 	**************************************************************************************/
-	public void newLocationUpdate(Location location) {
+	public int newLocationUpdate(Location location) {
 		if (locationArray.isEmpty())
-			return;
+			return 0; //TODO ?
 		switch (mode) {
 		case NORMAL:
 			recalculateLocationMarkerTransform();
@@ -207,7 +208,7 @@ public class MapView extends View
 		default:
 			break;
 		}
-		
+		return 1;
 	}
 	
 	
@@ -271,14 +272,20 @@ public class MapView extends View
 	}	
 	
 	private class myTouchListener implements OnTouchListener {
-		static final int CAMERA_ICON_SIZE=20;
+		static final int CAMERA_ICON_SIZE=40;
 		
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 			switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
 				ArrayList<MapItem> items = new ArrayList<MapItem>();
-				itemClicked(event.getX(), event.getY(), items);
+				float x = event.getX();
+				float y = event.getY();
+				itemClicked(x, y, items);
+				if((x > getWidth()/2 - 60) && (x < getWidth()/2 + 60)
+						&& (y > getHeight() - 80 - 40) && (y < getHeight() - 80 + 40)){
+					nextViewMode();
+				}
 				if (items.size() > 0) {
 					//handle only first one for now
 					//TODO handle more
@@ -292,6 +299,12 @@ public class MapView extends View
 					case NOTE:
 						Toast.makeText(context, item.getData(), Toast.LENGTH_SHORT).show();
 						break;
+					case HOUSE:
+						//TODO ?
+						break;
+//					case FOCUS:
+//						nextViewMode();
+//						break;
 					}
 
 				}
@@ -347,9 +360,10 @@ public class MapView extends View
 	}
 	
 	
-	public void nextViewMode() {
+	public void nextViewMode() { // TODO ?? we can avoid using these functions 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
+			setViewMode(MapViewMode.NORMAL);
 			return;
 		}
 			
@@ -515,25 +529,29 @@ public class MapView extends View
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
 	    //draw path
 	    canvas.drawPath(path, paint);
-	    
+	    canvas.drawPath(path, paint2);
 	    //draw location marker
 	    canvas.drawBitmap(locationMarker, locationMarkerTransform, null);
-	    
+	    canvas.drawBitmap(focusIcon, getWidth()/2 - focusIcon.getWidth()/2 ,getHeight() - 130 , paint);
 	    //draw map items
 	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
 			PointF point = mapItemsLocationArray.get(i);
 			switch (mapItemsArray.get(i).getType()) {
 			case PICTURE:
-				canvas.drawBitmap(cameraIcon, point.x-cameraIcon.getHeight()/2, point.y-cameraIcon.getWidth()/2, null);
+				canvas.drawBitmap(cameraIcon, point.x, point.y-cameraIcon.getWidth(), null);
 				break;
 			case NOTE:
-				canvas.drawBitmap(noteIcon, point.x, point.y-noteIcon.getHeight()/2, null);
+				canvas.drawBitmap(noteIcon, point.x, point.y-noteIcon.getHeight(), null);
 				break;
+			case HOUSE:
+				canvas.drawBitmap(houseIcon, point.x, point.y-houseIcon.getHeight(), null);
+				break;
+//			case FOCUS:
+//				//TODO?? 
+//				break;
 			}
-			
-			
-		}
-	   
+
+		} 
 	    //draw scale meter
 	    canvas.drawText(calcZoomFactor() + " m", 10 + SCALE_METER_LENGTH_PIX + 5, 35, textPaint);
 	    canvas.drawLine(10, 35, 10+SCALE_METER_LENGTH_PIX, 35, linePaint);

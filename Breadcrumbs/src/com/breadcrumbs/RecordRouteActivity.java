@@ -23,7 +23,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+//import android.widget.Button;
 import android.widget.EditText;
 
 import com.breadcrumbs.compass.CompassManager;
@@ -65,13 +65,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         
         mapView = (RecordMapView) findViewById(R.id.mapView);
         
-//        drawButton = (Button) findViewById(R.id.draw_btn);
-//        startLocationButton = (Button) findViewById(R.id.start_location_btn);
-//        stopLocationButton = (Button) findViewById(R.id.stop_location_btn);
-//        drawButton.setOnClickListener(this);
-//        startLocationButton.setOnClickListener(this);
-//        stopLocationButton.setOnClickListener(this);
-
+		
     }
 
 	@Override
@@ -112,7 +106,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 			locationManager.addLocationManagerListener(this);
 		}
 		compassManager.addCompassManagerListener(this);
-		
+	//	mapView.addMapItem(null, Type.FOCUS);
 	}
 
 	@Override
@@ -122,6 +116,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 			locationManager.resume();
 		}
 		compassManager.onResume();
+	
 	}
 	
 	@Override
@@ -131,6 +126,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 			locationManager.pause();
 		}
 		compassManager.onPause();
+	
 	}
 	
 	@Override
@@ -187,7 +183,9 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     }
     
     public void onLocationUpdate(Location location) {
-    	mapView.newLocationUpdate(location);
+    	if(mapView.newLocationUpdate(location) == 0){
+    		mapView.addMapItem(null, Type.HOUSE); //TODO ?
+    	}
     }
 
     /*

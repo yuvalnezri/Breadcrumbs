@@ -5,7 +5,6 @@
     -->
      
     <item  android:id="@+id/focus_btn"
-            android:icon="@drawable/rsz_crosshair"
             android:title="@string/focus"/>
  
     

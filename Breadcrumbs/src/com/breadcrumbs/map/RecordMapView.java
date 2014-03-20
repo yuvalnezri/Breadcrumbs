@@ -19,7 +19,7 @@ public class RecordMapView extends MapView {
 	}
 
 	@Override
-	public void newLocationUpdate(Location location) {
+	public int newLocationUpdate(Location location) {
 
 		PointF point = getPointFFromLocation(location);
 		currentLocation = point;
@@ -41,7 +41,7 @@ public class RecordMapView extends MapView {
 			locationArray.add(point);
 			focus();
 			super.newLocationUpdate(location);
-			return;
+			return 0;
 			
 		}
 		
@@ -52,7 +52,7 @@ public class RecordMapView extends MapView {
 
 		super.newLocationUpdate(location);
 
-		
+		return 1;
 	}
 
 	public void addMapItem(String data,Type type) {
@@ -60,11 +60,19 @@ public class RecordMapView extends MapView {
 			Toast.makeText(context, "Cant add item, need to get location first...", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		mapItemsArray.add(new MapItem(currentLocation, data, type));
-		PointF point = transformPoint(currentLocation,transform);
-		if (mode == MapViewMode.ORIENTIATED_FOCUS)
-			point = transformPoint(currentLocation,pathRotation);
-		mapItemsLocationArray.add(point);
+//		if(type == MapItem.Type.FOCUS){
+//			PointF p = new PointF(getWidth()/2 - 40,getHeight()-130);
+//			mapItemsArray.add(new MapItem(p, data, type));
+//			//PointF point = transformPoint(p,transform);
+//			mapItemsLocationArray.add(p);
+//		} else {
+			mapItemsArray.add(new MapItem(currentLocation, data, type));
+			PointF point = transformPoint(currentLocation,transform);
+			if (mode == MapViewMode.ORIENTIATED_FOCUS)
+				point = transformPoint(currentLocation,pathRotation);
+			mapItemsLocationArray.add(point);
+	//	}
+		
 		invalidate();
 		
 	}

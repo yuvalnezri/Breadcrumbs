@@ -5,24 +5,19 @@
     -->
      
 	<item 	android:id="@+id/focus_btn"
-	       	android:icon="@drawable/rsz_cross1"
 	      	android:title="@string/focus"
 	      	android:showAsAction="always"/>
 
 	<item 	android:id="@+id/new_btn"
-   			android:icon="@drawable/rsz_new"
        		android:title="@string/newstring"/>
 	
 	<item 	android:id="@+id/save_btn"
-   			android:icon="@drawable/rsz_save42"
        		android:title="@string/save"/>
 	
 	<item 	android:id="@+id/picture_btn"
-   			android:icon="@drawable/rsz_camera"
        		android:title="@string/picture"/>
 	
 	<item 	android:id="@+id/note_btn"
-   			android:icon="@drawable/rsz_note40"
        		android:title="@string/note"/>
     
 </menu>
