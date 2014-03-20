@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:compat="http://schemas.android.com/apk/res-auto">
+
+   <item android:id="@+id/picture_btn"
+          android:icon="@drawable/ic_action_camera"
+          android:title="@string/picture"
+          compat:showAsAction="always" />
+   
+   <item android:id="@+id/note_btn"
+          android:icon="@drawable/ic_action_note"
+          android:title="@string/note"
+          compat:showAsAction="always" />
+   
+   <item 	android:id="@+id/new_btn"
+   			android:icon="@drawable/ic_action_new"
+       		android:title="@string/newstring"
+       		compat:showAsAction="always"/>
+	
+	<item 	android:id="@+id/save_btn"
+   			android:icon="@drawable/ic_action_save"
+       		android:title="@string/save"
+       		compat:showAsAction="always"/>
+
+</menu>
