@@ -14,6 +14,7 @@
     <string name="adddebug">add debug</string>
     <string name="save">save</string>
     <string name="focus">focus</string>
-    <string name="desc"/>
-
+    <string name="desc" />
+    <string name="title_activity_load">LoadActivity</string>
+	<string name="load">load</string>
 </resources>

@@ -17,6 +17,8 @@ import android.view.View.OnClickListener;
 //import android.support.v7.app.ActionBar;
 
 
+import android.widget.Button;
+
 import com.breadcrumbs.compass.CompassManager;
 import com.breadcrumbs.compass.CompassManagerListener;
 import com.breadcrumbs.helpers.GoogleServicesManager;
@@ -30,7 +32,7 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
 	LocationManager locationManager;
 	GoogleServicesManager gsManager;
 	CompassManager compassManager;
-	//Button focusButton;
+	private Button focusBtn;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +42,8 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
 			
 		//finding view by id
 		mapView = (NavigationMapView) findViewById(R.id.mapView);
-		//focusButton = (Button) findViewById(R.id.focus_btn);
-		
-		//set on click listener
-		//focusButton.setOnClickListener(this);
+		focusBtn = (Button) findViewById(R.id.focus_btn); // NEW
+		focusBtn.setOnClickListener(this); //NEW
 		
 		byte[] route  = getIntent().getByteArrayExtra("route");
 		if (route == null) {
@@ -78,11 +78,11 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
     }
 	@Override
 	public void onClick(View v) {
-		//switch (v.getId()) {
-    	//case R.id.focus_btn :
-    	//	mapView.focus();
-    	//	break;
-		//}
+		switch (v.getId()) {
+    	case R.id.focus_btn :
+    		mapView.nextViewMode();
+    		break;
+		}
 		
 	}
 	@Override

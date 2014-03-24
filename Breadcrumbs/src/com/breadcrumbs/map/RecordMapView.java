@@ -60,19 +60,11 @@ public class RecordMapView extends MapView {
 			Toast.makeText(context, "Cant add item, need to get location first...", Toast.LENGTH_SHORT).show();
 			return;
 		}
-//		if(type == MapItem.Type.FOCUS){
-//			PointF p = new PointF(getWidth()/2 - 40,getHeight()-130);
-//			mapItemsArray.add(new MapItem(p, data, type));
-//			//PointF point = transformPoint(p,transform);
-//			mapItemsLocationArray.add(p);
-//		} else {
-			mapItemsArray.add(new MapItem(currentLocation, data, type));
-			PointF point = transformPoint(currentLocation,transform);
-			if (mode == MapViewMode.ORIENTIATED_FOCUS)
-				point = transformPoint(currentLocation,pathRotation);
-			mapItemsLocationArray.add(point);
-	//	}
-		
+		mapItemsArray.add(new MapItem(currentLocation, data, type));
+		PointF point = transformPoint(currentLocation,transform);
+		if (mode == MapViewMode.ORIENTIATED_FOCUS)
+			point = transformPoint(currentLocation,pathRotation);
+		mapItemsLocationArray.add(point);
 		invalidate();
 		
 	}

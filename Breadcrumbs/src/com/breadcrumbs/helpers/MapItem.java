@@ -32,5 +32,5 @@ public class MapItem implements Serializable{
 	public String getData() {
 		return data;
 	}
-	public enum Type {PICTURE, NOTE,HOUSE};//TODO : , FOCUS};
+	public enum Type {PICTURE, NOTE,HOUSE, FLAG}; // UPDATE added END
 }

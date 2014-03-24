@@ -14,7 +14,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/iconv3"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
         <meta-data
@@ -32,27 +32,35 @@
         </activity>
         <activity
             android:name="com.breadcrumbs.RecordRouteActivity"
-            android:label="@string/app_name" 
+            android:label="@string/app_name"
             android:parentActivityName="com.breadcrumbs.MainActivity" >
-        <!-- Parent activity meta-data to support 4.0 and lower -->
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.breadcrumbs.MainActivity" />
-            
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.breadcrumbs.MainActivity" />
         </activity>
         <activity
             android:name="com.breadcrumbs.NavigateRouteActivity"
             android:label="@string/app_name"
-			android:parentActivityName="com.breadcrumbs.MainActivity" >
-        <!-- Parent activity meta-data to support 4.0 and lower -->
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.breadcrumbs.MainActivity" />
+            android:parentActivityName="com.breadcrumbs.MainActivity" >
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.breadcrumbs.MainActivity" />
         </activity>
-        
         <activity
             android:name="com.breadcrumbs.ViewPictureActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.breadcrumbs.LoadActivity"
+            android:label="@string/title_activity_load"
+            android:parentActivityName="com.breadcrumbs.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.breadcrumbs.MainActivity" />
         </activity>
     </application>
 

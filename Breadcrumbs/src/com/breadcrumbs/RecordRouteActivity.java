@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 //import android.widget.Button;
 import android.widget.EditText;
 
@@ -46,7 +47,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 	private String routeName;
 	
 	private RecordMapView mapView;
-
+	private Button focusBtn;
 //	private Button  drawButton, startLocationButton, stopLocationButton;
 	
 	
@@ -64,7 +65,8 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         compassManager = new CompassManager(this);
         
         mapView = (RecordMapView) findViewById(R.id.mapView);
-        
+        focusBtn = (Button) findViewById(R.id.focus_btn); // NEW
+		focusBtn.setOnClickListener(this); //NEW
 		
     }
 
@@ -84,7 +86,9 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         		mapView.reset();
         		return true;
         	case R.id.save_btn :
+        		mapView.addMapItem(null, Type.FLAG);
         		saveRouteToDB();
+        		
         		return true;
         	case R.id.picture_btn:
         		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -106,7 +110,6 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 			locationManager.addLocationManagerListener(this);
 		}
 		compassManager.addCompassManagerListener(this);
-	//	mapView.addMapItem(null, Type.FOCUS);
 	}
 
 	@Override
@@ -140,10 +143,10 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     
     @Override
     public void onClick(View view) {
-//    	switch (view.getId()) {
-//    	case R.id.draw_btn :
-//    		mapView.drawDebugRoute();
-//    		break;
+    	switch (view.getId()) {
+    	case R.id.focus_btn :
+    		mapView.nextViewMode();
+    		break;
 //    	case R.id.start_location_btn :
 //    		locationManager.start();
 //    		break;
@@ -151,7 +154,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 //    	case R.id.stop_location_btn :
 //    		locationManager.stop();
 //    		break;
-//    	}	
+    	}	
     }
     
     public void saveRouteToDB() {

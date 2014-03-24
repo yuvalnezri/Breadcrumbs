@@ -20,7 +20,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-
 import android.location.Location;
 import android.util.AttributeSet;
 //import android.util.DisplayMetrics;
@@ -61,11 +60,10 @@ public class MapView extends View
 	//canvas paint
 	private Paint canvasPaint;
 	
-	private Bitmap locationMarker;
-	private Bitmap noteIcon;
-	private Bitmap cameraIcon;
-	private Bitmap houseIcon;
-	private Bitmap focusIcon;
+	private Bitmap locationMarker,noteIcon,cameraIcon,houseIcon,flagIcon;
+//	private Bitmap noteIcon,cameraIcon,houseIcon,flagIcon;
+//	private Bitmap cameraIcon,houseIcon,flagIcon;
+//	private Bitmap houseIcon,flagIcon;
 	//NOT transformed location coordinates
 	protected PointF currentLocation;
 	
@@ -84,6 +82,7 @@ public class MapView extends View
 	private Path path;
 	
 	float initPixToMeter ;
+	
 	
 	public GestureDetector gestureDetector;
 	public ScaleGestureDetector scaleGestureDetector;
@@ -111,12 +110,12 @@ public class MapView extends View
 		
 		
 		
-		
-		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.arrow_up);
+		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.garrow22);
 		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera127);
 		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.comment27);
 		houseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.house36);
-		focusIcon = BitmapFactory.decodeResource(getResources(), R.drawable.shadow2);
+		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.flag64);
+
 		initPaint();
 	}
 	
@@ -143,7 +142,7 @@ public class MapView extends View
 		}
 		
 		Resources res = getResources();
-		Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.sim_frst4);
+		Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.sim_frst3_smlr_cmps800);
 		//Canvas canvas = new Canvas(bitmap.copy(Bitmap.Config.ARGB_8888, true));
 		
 		canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -171,7 +170,6 @@ public class MapView extends View
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		//paint.setAlpha(100);
 		paint2.setColor(Color.CYAN);
 		paint2.setAntiAlias(true);
 		paint2.setStrokeWidth(15);
@@ -282,10 +280,6 @@ public class MapView extends View
 				float x = event.getX();
 				float y = event.getY();
 				itemClicked(x, y, items);
-				if((x > getWidth()/2 - 60) && (x < getWidth()/2 + 60)
-						&& (y > getHeight() - 80 - 40) && (y < getHeight() - 80 + 40)){
-					nextViewMode();
-				}
 				if (items.size() > 0) {
 					//handle only first one for now
 					//TODO handle more
@@ -302,9 +296,9 @@ public class MapView extends View
 					case HOUSE:
 						//TODO ?
 						break;
-//					case FOCUS:
-//						nextViewMode();
-//						break;
+					case FLAG:
+						//TODO ?
+						break;
 					}
 
 				}
@@ -466,23 +460,23 @@ public class MapView extends View
 	protected void recalculateLocationMarkerTransform() {
 		
 		switch (mode) {
+		//case NORMAL:
 		case NORMAL:
-		case FOCUSED:
 			if(currentLocation == null)
 				return;
 			PointF transformedCurrent = transformPoint(currentLocation,transform);
 			locationMarkerTransform.reset();
 			locationMarkerTransform.setRotate(currentAzimut*360/(2*3.14159f), locationMarker.getWidth()/2, locationMarker.getHeight()/2);
 			locationMarkerTransform.postScale(LOCATION_MARKER_SCALE,LOCATION_MARKER_SCALE);
-			locationMarkerTransform.postTranslate(transformedCurrent.x-locationMarker.getWidth()/2,
-	    			transformedCurrent.y-locationMarker.getHeight()/2);
+			locationMarkerTransform.postTranslate(transformedCurrent.x-locationMarker.getWidth(),
+	    			transformedCurrent.y-locationMarker.getHeight() - 20);
 			break;
 		
 		case ORIENTIATED_FOCUS:
 			locationMarkerTransform.reset();
 			locationMarkerTransform.postScale(LOCATION_MARKER_SCALE,LOCATION_MARKER_SCALE);
-			locationMarkerTransform.postTranslate(viewWidth/2-locationMarker.getWidth()/2,
-	    			viewHeight/2-locationMarker.getHeight()/2);
+			locationMarkerTransform.postTranslate(viewWidth/2-locationMarker.getWidth(),
+	    			viewHeight/2-locationMarker.getHeight() - 20);
 		default:
 			break;
 		}
@@ -532,7 +526,6 @@ public class MapView extends View
 	    canvas.drawPath(path, paint2);
 	    //draw location marker
 	    canvas.drawBitmap(locationMarker, locationMarkerTransform, null);
-	    canvas.drawBitmap(focusIcon, getWidth()/2 - focusIcon.getWidth()/2 ,getHeight() - 130 , paint);
 	    //draw map items
 	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
 			PointF point = mapItemsLocationArray.get(i);
@@ -546,9 +539,9 @@ public class MapView extends View
 			case HOUSE:
 				canvas.drawBitmap(houseIcon, point.x, point.y-houseIcon.getHeight(), null);
 				break;
-//			case FOCUS:
-//				//TODO?? 
-//				break;
+			case FLAG:
+				canvas.drawBitmap(flagIcon, point.x, point.y-flagIcon.getHeight(), null);
+				break;
 			}
 
 		} 

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/homepagev1"
     android:orientation="vertical" >
-
+<!--  
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
@@ -17,24 +18,52 @@
 
         <Button
             android:id="@+id/new_route_btn"
-            android:layout_width="0dp"
+            
             android:layout_height="fill_parent"
-            android:layout_weight="1"
+            
             android:text="@string/newstring" />
 
         <Button
             android:id="@+id/delete_all_btn"
-            android:layout_width="0dp"
+            
             android:layout_height="fill_parent"
-            android:layout_weight="1"
+           
             android:text="@string/deleteall" />
 
         <Button
-            android:id="@+id/debug_btn"
-            android:layout_width="0dp"
+            android:id="@+id/load_btn"
+            
             android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/adddebug" />
-    </LinearLayout>
+            
+            android:text="@string/load" />
+-->
 
+        <Button
+            android:id="@+id/delete_all_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/load_btn"
+            android:layout_centerHorizontal="true"
+            android:text="@string/deleteall" />
+
+        <Button
+            android:id="@+id/new_route_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/delete_all_btn"
+            android:layout_toLeftOf="@+id/delete_all_btn"
+            android:background="@drawable/new_button" />
+
+        <Button
+            android:id="@+id/load_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_toRightOf="@+id/delete_all_btn"
+            android:background="@drawable/load_button" />
+
+    </RelativeLayout>
+<!--  
 </LinearLayout>
+-->
