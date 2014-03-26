@@ -1,4 +1,4 @@
-package com.breadcrumbs;
+package com.breadcrumbs.helpers;
 
 import java.io.Serializable;
 

@@ -357,17 +357,23 @@ public class MapView extends View
 	public void nextViewMode() { // TODO ?? we can avoid using these functions 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
-			setViewMode(MapViewMode.NORMAL);
+			Toast.makeText(context, "Focus Mode : CENTERED", Toast.LENGTH_SHORT).show();
+
+			//setViewMode(MapViewMode.NORMAL);
 			return;
 		}
 			
 		if (mode == MapViewMode.FOCUSED) {
 			setViewMode(MapViewMode.ORIENTIATED_FOCUS);
+			Toast.makeText(context, "Focus Mode : CENTER ORIENTED", Toast.LENGTH_SHORT).show();
+
 			return;
 		}
 			
 		if (mode == MapViewMode.ORIENTIATED_FOCUS ) {
 			setViewMode(MapViewMode.NORMAL);
+			Toast.makeText(context, "Focus Mode : FREE LOOK", Toast.LENGTH_SHORT).show();
+
 			return;
 		}
 	}

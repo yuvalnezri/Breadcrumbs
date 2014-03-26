@@ -1,6 +1,9 @@
-package com.breadcrumbs;
+package com.breadcrumbs.helpers;
 
 import java.util.List;
+
+import com.breadcrumbs.R;
+import com.breadcrumbs.R.id;
 
 import android.app.Activity;
 import android.content.Context;

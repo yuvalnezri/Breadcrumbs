@@ -40,8 +40,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		
 		newRoute = (Button) findViewById(R.id.new_route_btn);
 		loadBtn = (Button) findViewById(R.id.load_btn);
+		
 		newRoute.setOnClickListener(this);
 		loadBtn.setOnClickListener(this);
+		
 		
 		dbManager = new DbManager(this);
 		dbManager.open();
@@ -66,6 +68,8 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		}
 		
 	}
+	
+
 	
 	private void loadRoute() {
 		Intent intent = new Intent(this, LoadActivity.class);

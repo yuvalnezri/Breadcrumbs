@@ -17,4 +17,6 @@
     <string name="desc" />
     <string name="title_activity_load">LoadActivity</string>
 	<string name="load">load</string>
+	<string name="album_name">BreadCrumbs</string>
+	<string name="resume">Resume</string>
 </resources>

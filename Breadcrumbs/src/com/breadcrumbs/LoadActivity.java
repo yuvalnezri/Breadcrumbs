@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -17,6 +18,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.breadcrumbs.db.DbManager;
+import com.breadcrumbs.helpers.AdapterItem;
+import com.breadcrumbs.helpers.ListAdapter;
 
 public class LoadActivity extends ActionBarActivity implements OnClickListener {
 
@@ -25,14 +28,14 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 	private SimpleCursorAdapter cAdapter;
 	String newRouteName;
 	private Button open_btn,del_btn;
-	private ListAdapter adapter;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_load);
 		
-//		setupListViewAdapter();
+
 		ListView listView = (ListView) findViewById(R.id.list_view);
 		dbManager = new DbManager(this);
 		dbManager.open();
@@ -60,16 +63,8 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 		});
 	}
 	
-	public void removeRoute(View v) {
-		AdapterItem itemToRemove = (AdapterItem)v.getTag();
-		adapter.remove(itemToRemove);
-	}
 	
-	private void setupListViewAdapter() {
-		adapter = new ListAdapter(LoadActivity.this, R.layout.list_layout_item, new ArrayList<AdapterItem>());
-		ListView adapterListView = (ListView)findViewById(R.id.list_view);
-		adapterListView.setAdapter(adapter);
-	}
+
 	@Override
 	public void onClick(View v) {
 
@@ -106,7 +101,7 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 				dbManager.addRoute(newRouteName, route);
 				cAdapter.changeCursor(dbManager.getRoutesCursor());
 				cAdapter.notifyDataSetChanged();
-				//adapter.insert(new AdapterItem(newRouteName), 0);
+				
 			}
 		}
 	}
