@@ -1,39 +1,44 @@
 package com.breadcrumbs;
 
-import com.breadcrumbs.db.DbManager;
+import java.util.ArrayList;
+
+
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class LoadActivity extends ActionBarActivity {
+import com.breadcrumbs.db.DbManager;
+
+public class LoadActivity extends ActionBarActivity implements OnClickListener {
 
 	static final int ROUTE_REQUEST = 1;
 	private DbManager dbManager;
 	private SimpleCursorAdapter cAdapter;
 	String newRouteName;
+	private Button open_btn,del_btn;
+	private ListAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_load);
-
-//		if (savedInstanceState == null) {
-//			getSupportFragmentManager().beginTransaction()
-//					.add(R.id.container, new PlaceholderFragment()).commit();
-//		}
+		
+//		setupListViewAdapter();
 		ListView listView = (ListView) findViewById(R.id.list_view);
 		dbManager = new DbManager(this);
 		dbManager.open();
+		
+//		del_btn = (Button) findViewById(R.id.delete); // NEW
+//		del_btn.setOnClickListener(this); //NEW
 		String[] from = new String[]{"name","date"};
 		int[] to = new int[] {android.R.id.text1, android.R.id.text2};
 		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, dbManager.getRoutesCursor(),
@@ -44,11 +49,39 @@ public class LoadActivity extends ActionBarActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
+//				switch (view.getId()) {
+//		    	case R.id.delete :
+//		    		removeRoute(id);
+//		    		break;
+//				}
+				
 				openRoute(id);		
 			}
 		});
 	}
-	private void openRoute(long id) {
+	
+	public void removeRoute(View v) {
+		AdapterItem itemToRemove = (AdapterItem)v.getTag();
+		adapter.remove(itemToRemove);
+	}
+	
+	private void setupListViewAdapter() {
+		adapter = new ListAdapter(LoadActivity.this, R.layout.list_layout_item, new ArrayList<AdapterItem>());
+		ListView adapterListView = (ListView)findViewById(R.id.list_view);
+		adapterListView.setAdapter(adapter);
+	}
+	@Override
+	public void onClick(View v) {
+
+	}
+	
+//	private void removeRoute(long id){
+//		dbManager.deleteRoute(id);
+//		cAdapter.changeCursor(dbManager.getRoutesCursor());
+//		cAdapter.notifyDataSetChanged();
+//	}
+	
+	public void openRoute(long id) {
 		Intent i = new Intent(this,NavigateRouteActivity.class);
 		byte[] route = dbManager.getRouteById(id);
 		if (route == null) {
@@ -73,6 +106,7 @@ public class LoadActivity extends ActionBarActivity {
 				dbManager.addRoute(newRouteName, route);
 				cAdapter.changeCursor(dbManager.getRoutesCursor());
 				cAdapter.notifyDataSetChanged();
+				//adapter.insert(new AdapterItem(newRouteName), 0);
 			}
 		}
 	}
@@ -81,7 +115,8 @@ public class LoadActivity extends ActionBarActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.load, menu);
+	    getMenuInflater().inflate(R.menu.load_action_bar, menu);
+
 		return true;
 	}
 
@@ -90,28 +125,19 @@ public class LoadActivity extends ActionBarActivity {
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		 switch (item.getItemId()){
+	     	case R.id.delete_all_btn:
+		     		dbManager.deleteAllRoutes();
+					cAdapter.changeCursor(dbManager.getRoutesCursor());
+					cAdapter.notifyDataSetChanged();
+		    		return true;
+	     	default:
+			return super.onOptionsItemSelected(item);
+		 }
 	}
 
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
 
-		public PlaceholderFragment() {
-		}
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_load, container,
-					false);
-			return rootView;
-		}
-	}
+	
 
 }

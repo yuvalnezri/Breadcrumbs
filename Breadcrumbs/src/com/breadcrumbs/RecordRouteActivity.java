@@ -72,7 +72,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
-	    getMenuInflater().inflate(R.layout.record_menu, menu);
+	   // getMenuInflater().inflate(R.layout.record_menu, menu);
 	    getMenuInflater().inflate(R.menu.action_bar, menu);
 	    return true;
 	}
@@ -165,6 +165,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     	i.putExtra("route",	buf);
     	setResult(RESULT_OK, i);
     	finish();
+    	
     	
     }
     

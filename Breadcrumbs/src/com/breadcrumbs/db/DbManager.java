@@ -55,6 +55,9 @@ public class DbManager {
 				null, null, null ,null, "_id");
 	}
 	
+	public void deleteRoute(long id){
+		database.delete("Routes", " _id =" + id, null);
+	}
 	public void deleteAllRoutes() {
 		
 		database.delete("Routes", null, null);

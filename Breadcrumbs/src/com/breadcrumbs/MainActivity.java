@@ -12,10 +12,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.breadcrumbs.db.DbManager;
@@ -30,7 +28,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 	
 	private DbManager dbManager;
 	
-	private Button newRoute, deleteAllButton,loadBtn;
+	private Button newRoute,loadBtn;
 	
 	String newRouteName;
 	
@@ -40,15 +38,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		//ListView listView = (ListView) findViewById(R.id.list_view);
-		
 		newRoute = (Button) findViewById(R.id.new_route_btn);
-		deleteAllButton = (Button) findViewById(R.id.delete_all_btn);
-//		addDebugRecordsButton = (Button) findViewById(R.id.load_btn);
 		loadBtn = (Button) findViewById(R.id.load_btn);
-		
 		newRoute.setOnClickListener(this);
-		deleteAllButton.setOnClickListener(this);
 		loadBtn.setOnClickListener(this);
 		
 		dbManager = new DbManager(this);
@@ -56,55 +48,19 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		
 		String[] from = new String[]{"name","date"};
 		int[] to = new int[] {android.R.id.text1, android.R.id.text2};
-		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, dbManager.getRoutesCursor(),
+		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_multiple_choice, dbManager.getRoutesCursor(),
 											from, to, 0);
-//		
-//		listView.setAdapter(cAdapter);
-//		listView.setOnItemClickListener(new AdapterView.OnItemClickListener()  {
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view, int position,
-//					long id) {
-//				openRoute(id);		
-//			}
-//		});
+
 	}
 	
-//	private void openRoute(long id) {
-//		Intent i = new Intent(this,NavigateRouteActivity.class);
-//		byte[] route = dbManager.getRouteById(id);
-//		if (route == null) {
-//			//TODO some error
-//			return;
-//		}
-//		
-//		i.putExtra("route", route);
-//		startActivity(i);
-//		
-//	}
-//	private void addDebugRecords() {
-//		dbManager.addRoute("route1", new byte[] {});
-//		dbManager.addRoute("route2", new byte[] {});
-//		dbManager.addRoute("route3", new byte[] {});
-//		dbManager.addRoute("route4", new byte[] {});
-//		cAdapter.changeCursor(dbManager.getRoutesCursor());
-//		cAdapter.notifyDataSetChanged();
-//	}
 
-	
-	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case (R.id.new_route_btn):
 			newRoute();
 			break;
-		case (R.id.delete_all_btn):
-			dbManager.deleteAllRoutes();
-			cAdapter.changeCursor(dbManager.getRoutesCursor());
-			cAdapter.notifyDataSetChanged();
-			break;
 		case (R.id.load_btn):
-			//addDebugRecords();
 			loadRoute();
 			break;
 		}
@@ -114,7 +70,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 	private void loadRoute() {
 		Intent intent = new Intent(this, LoadActivity.class);
 		startActivity(intent);
-
 	}
 	
 	private void newRoute() {

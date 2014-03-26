@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:compat="http://schemas.android.com/apk/res-auto">
+
+   <item android:id="@+id/delete_all_btn"
+          android:icon="@drawable/ic_action_discard"
+          android:title="@string/picture"
+          compat:showAsAction="always" />
+
+</menu>
