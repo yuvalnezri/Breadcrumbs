@@ -1,78 +1,103 @@
 package com.breadcrumbs;
 
-import java.util.ArrayList;
-
-
-
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
+import com.breadcrumbs.R;
+import com.breadcrumbs.db.DbContentProvider;
 import com.breadcrumbs.db.DbManager;
-import com.breadcrumbs.helpers.AdapterItem;
+import com.breadcrumbs.db.DbOpenHelper;
 import com.breadcrumbs.helpers.ListAdapter;
+import com.breadcrumbs.helpers.RouteInfo;
 
-public class LoadActivity extends ActionBarActivity implements OnClickListener {
+public class LoadActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
+	private static final int ROUTE_LIST_LOADER = 0x01;
+	
+	
 	static final int ROUTE_REQUEST = 1;
 	private DbManager dbManager;
-	private SimpleCursorAdapter cAdapter;
+
 	String newRouteName;
-
-
+	private ListAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_load);
 		
-
-		ListView listView = (ListView) findViewById(R.id.list_view);
 		dbManager = new DbManager(this);
 		dbManager.open();
 		
-		String[] from = new String[]{"name","date"};
-		int[] to = new int[] {android.R.id.text1, android.R.id.text2};
-		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, dbManager.getRoutesCursor(),
-												from, to, 0);
+	    
+	    adapter = new ListAdapter(this, null);
+	    
+		ListView listView = (ListView) findViewById(R.id.list_view);
 		
-		listView.setAdapter(cAdapter);
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener()  {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position,
-					long id) {
-//				switch (view.getId()) {
-//		    	case R.id.delete :
-//		    		removeRoute(id);
-//		    		break;
-//				}
-				
-				openRoute(id);		
-			}
-		});
+		listView.setAdapter(adapter);
+	    
+		
+	    getSupportLoaderManager().initLoader(ROUTE_LIST_LOADER, null, this);
+	    
+
 	}
 	
-	
-
 	@Override
-	public void onClick(View v) {
+	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+		switch (loaderId) {
+		case ROUTE_LIST_LOADER:
+			String[] projection = { DbOpenHelper.COL_ID, DbOpenHelper.COL_NAME, DbOpenHelper.COL_DATE };
 
+			return new android.support.v4.content.CursorLoader
+					(this, DbContentProvider.CONTENT_URI, projection, null, null, null);
+		default:
+			return null;
+		}
 	}
 	
-//	private void removeRoute(long id){
-//		dbManager.deleteRoute(id);
-//		cAdapter.changeCursor(dbManager.getRoutesCursor());
-//		cAdapter.notifyDataSetChanged();
-//	}
+	
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		adapter.changeCursor(null);
+		
+	}
+	
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		adapter.changeCursor(cursor);
+		
+	}
+	
+	public void listItemClickedHandler(View v) {
+		RouteInfo routeinfo = (RouteInfo) v.getTag();
+		
+		switch (v.getId()) {
+		case R.id.delete:
+			deleteRoute(routeinfo.id);
+			break;
+		case R.id.nameLabel:
+		case R.id.dateLabel:
+			openRoute(routeinfo.id);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private void deleteRoute(long id){
+		dbManager.deleteRoute(id);
+		getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
+		adapter.notifyDataSetChanged();
+	}
 	
 	public void openRoute(long id) {
 		Intent i = new Intent(this,NavigateRouteActivity.class);
@@ -87,22 +112,22 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 		
 	}
 
-//	@Override
-//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//		super.onActivityResult(requestCode, resultCode, data);
-//		
-//		if (requestCode == ROUTE_REQUEST) {
-//			if (resultCode == RESULT_OK) {
-//				//TODO open name dialog
-//				
-//				byte[] route = data.getByteArrayExtra("route");
-//				dbManager.addRoute(newRouteName, route);
-//				cAdapter.changeCursor(dbManager.getRoutesCursor());
-//				cAdapter.notifyDataSetChanged();
-//				
-//			}
-//		}
-//	}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (requestCode == ROUTE_REQUEST) {
+			if (resultCode == RESULT_OK) {
+				//TODO open name dialog
+				
+				byte[] route = data.getByteArrayExtra("route");
+				dbManager.addRoute(newRouteName, route);
+				getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
+				adapter.notifyDataSetChanged();
+
+			}
+		}
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -121,8 +146,8 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 		 switch (item.getItemId()){
 	     	case R.id.delete_all_btn:
 		     		dbManager.deleteAllRoutes();
-					cAdapter.changeCursor(dbManager.getRoutesCursor());
-					cAdapter.notifyDataSetChanged();
+					getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
+					adapter.notifyDataSetChanged();
 		    		return true;
 	     	default:
 			return super.onOptionsItemSelected(item);

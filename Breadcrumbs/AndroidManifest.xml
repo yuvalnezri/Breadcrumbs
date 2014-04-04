@@ -59,7 +59,7 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.breadcrumbs.helpers.LoadActivity"
+            android:name="com.breadcrumbs.LoadActivity"
             android:label="@string/title_activity_load"
             android:parentActivityName="com.breadcrumbs.MainActivity" >
             <meta-data

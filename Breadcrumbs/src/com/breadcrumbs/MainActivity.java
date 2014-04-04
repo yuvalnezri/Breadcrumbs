@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 
 import com.breadcrumbs.db.DbManager;
-import com.breadcrumbs.helpers.LoadActivity;
 
 
 public class MainActivity extends ActionBarActivity implements OnClickListener{
