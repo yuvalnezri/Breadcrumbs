@@ -27,7 +27,7 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 	private DbManager dbManager;
 	private SimpleCursorAdapter cAdapter;
 	String newRouteName;
-	private Button open_btn,del_btn;
+
 
 	
 	@Override
@@ -40,8 +40,6 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 		dbManager = new DbManager(this);
 		dbManager.open();
 		
-//		del_btn = (Button) findViewById(R.id.delete); // NEW
-//		del_btn.setOnClickListener(this); //NEW
 		String[] from = new String[]{"name","date"};
 		int[] to = new int[] {android.R.id.text1, android.R.id.text2};
 		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, dbManager.getRoutesCursor(),
@@ -89,22 +87,22 @@ public class LoadActivity extends ActionBarActivity implements OnClickListener {
 		
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		
-		if (requestCode == ROUTE_REQUEST) {
-			if (resultCode == RESULT_OK) {
-				//TODO open name dialog
-				
-				byte[] route = data.getByteArrayExtra("route");
-				dbManager.addRoute(newRouteName, route);
-				cAdapter.changeCursor(dbManager.getRoutesCursor());
-				cAdapter.notifyDataSetChanged();
-				
-			}
-		}
-	}
+//	@Override
+//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		super.onActivityResult(requestCode, resultCode, data);
+//		
+//		if (requestCode == ROUTE_REQUEST) {
+//			if (resultCode == RESULT_OK) {
+//				//TODO open name dialog
+//				
+//				byte[] route = data.getByteArrayExtra("route");
+//				dbManager.addRoute(newRouteName, route);
+//				cAdapter.changeCursor(dbManager.getRoutesCursor());
+//				cAdapter.notifyDataSetChanged();
+//				
+//			}
+//		}
+//	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

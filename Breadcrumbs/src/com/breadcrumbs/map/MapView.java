@@ -61,11 +61,10 @@ public class MapView extends View
 	private Paint canvasPaint;
 	
 	private Bitmap locationMarker,noteIcon,cameraIcon,houseIcon,flagIcon;
-//	private Bitmap noteIcon,cameraIcon,houseIcon,flagIcon;
-//	private Bitmap cameraIcon,houseIcon,flagIcon;
-//	private Bitmap houseIcon,flagIcon;
+
 	//NOT transformed location coordinates
 	protected PointF currentLocation;
+	
 	
 	protected Paint paint,textPaint,linePaint,paint2;
 
@@ -80,6 +79,7 @@ public class MapView extends View
 	private float currentAzimut=0f;
 	
 	private Path path;
+	
 	
 	float initPixToMeter ;
 	
@@ -105,10 +105,7 @@ public class MapView extends View
 		pathRotation = new Matrix();
 
 		path = new Path();
-		
 		mode = MapViewMode.NORMAL;
-		
-		
 		
 		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.garrow22);
 		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera127);
@@ -117,16 +114,14 @@ public class MapView extends View
 		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.flag64);
 
 		initPaint();
+		
+		
+		
 	}
-	
 	
 	/*************************************************************************************
 	*Initialization functions
 	**************************************************************************************/
-	
-	
-	
-	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 	//view given size
 		
@@ -150,13 +145,10 @@ public class MapView extends View
 
 		invalidate();
 	}
-	
-
 	//returns true if got at least 1 gps location update
 	public Boolean isInitialized() {
 		return locationArray.size()>0;
 	}
-	
 	
 	private void initPaint(){
 		paint = new Paint();
@@ -184,8 +176,6 @@ public class MapView extends View
 		linePaint.setColor(Color.BLUE);
 	}
 	
-	
-	
 	/*************************************************************************************
 	*Event related functions
 	**************************************************************************************/
@@ -209,7 +199,6 @@ public class MapView extends View
 		return 1;
 	}
 	
-	
 	public void newCompassUpdate(float azimut) {
 		currentAzimut = azimut;
 		switch (mode) {
@@ -229,7 +218,6 @@ public class MapView extends View
 		}
 		invalidate();
 	}
-	
 	
 	private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 		
@@ -321,7 +309,6 @@ public class MapView extends View
 		
 	}
 	
-	
 	public void setViewMode(MapViewMode newMode) {
 		switch (newMode) {
 		case NORMAL:
@@ -353,7 +340,6 @@ public class MapView extends View
 		
 	}
 	
-	
 	public void nextViewMode() { // TODO ?? we can avoid using these functions 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
@@ -381,11 +367,9 @@ public class MapView extends View
 	*Transformation functions
 	**************************************************************************************/
 	
-	
 	public PointF getPointFFromLocation(Location location) {
 		return new PointF((float) location.getLongitude(), (float) location.getLatitude());
 	}
-
 
 	//all path/map item coordinates that are going to be drawn must pass threw here!!
 	protected PointF transformPoint(PointF point,Matrix matrix) {
@@ -395,7 +379,6 @@ public class MapView extends View
 		return new PointF(arr[0],arr[1]);
 	}
 	
-	
 	private ArrayList<PointF> transformArray(ArrayList<PointF> array, Matrix matrix){
 		ArrayList<PointF> newArr = new ArrayList<PointF>();
 		for (Iterator<PointF> iterator = array.iterator(); iterator.hasNext();) {
@@ -404,7 +387,6 @@ public class MapView extends View
 		}
 		return newArr;
 	}
-	
 	
 	protected String calcZoomFactor(){
 		float values[] = new float[9];
@@ -416,7 +398,6 @@ public class MapView extends View
 	    return formated;
 	}
 	
-
 	//only adds 1 point to path without recalculating path
 	//point needs to be clean(true long/lat)
 	protected void addPointToPath (PointF point) {
@@ -426,8 +407,11 @@ public class MapView extends View
 			path.moveTo(transformedPoint.x, transformedPoint.y);
 		} else {
 			path.lineTo(transformedPoint.x, transformedPoint.y);
+			
 		}
+		
 	}
+	
 	
 	//recalculates path and mapitemslocationarray subject to transform and rotate matrices
 	protected void recalculatePath() {
@@ -460,8 +444,6 @@ public class MapView extends View
 		}
 		
     }
-	
-	
 	
 	protected void recalculateLocationMarkerTransform() {
 		
@@ -517,21 +499,16 @@ public class MapView extends View
 		
 	}
 	
-	
 	/*************************************************************************************
 	*Drawing functions
 	**************************************************************************************/
-
-	
-	@Override
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
 	    //draw path
 	    canvas.drawPath(path, paint);
 	    canvas.drawPath(path, paint2);
-	    //draw location marker
-	    canvas.drawBitmap(locationMarker, locationMarkerTransform, null);
+	    
 	    //draw map items
 	    for (int i = 0; i < mapItemsLocationArray.size(); i++) {
 			PointF point = mapItemsLocationArray.get(i);
@@ -554,8 +531,11 @@ public class MapView extends View
 	    //draw scale meter
 	    canvas.drawText(calcZoomFactor() + " m", 10 + SCALE_METER_LENGTH_PIX + 5, 35, textPaint);
 	    canvas.drawLine(10, 35, 10+SCALE_METER_LENGTH_PIX, 35, linePaint);
+	    canvas.drawLine(10, 30, 10, 40, linePaint);
+	    canvas.drawLine(10+SCALE_METER_LENGTH_PIX, 30, 10+SCALE_METER_LENGTH_PIX, 40, linePaint);
+	  //draw location marker
+	    canvas.drawBitmap(locationMarker, locationMarkerTransform, null);
 	}
-	
 	
 	public void reset() {
 		locationArray = new ArrayList<PointF>();
@@ -574,14 +554,9 @@ public class MapView extends View
 		invalidate();
 	}
 	
-
-	
 	/*************************************************************************************
 	*serialization functions
 	**************************************************************************************/
-	
-	
-	
 	public byte[] serializeRoute() {
 		ByteArrayOutputStream baos;
 		ObjectOutputStream oos;
@@ -605,8 +580,6 @@ public class MapView extends View
 		}
 	}
 	
-	
-
 	public void loadRouteFromByteArray(byte[] buf) {
 		ByteArrayInputStream bais;
 		ObjectInputStream ois;
@@ -633,8 +606,5 @@ public class MapView extends View
 		}
 		
 	}
-	
-
-	
 	
 }
