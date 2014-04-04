@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.breadcrumbs.helpers.RouteInfo;
 
 public class DbManager {
+	public static final String COL_ROUTE_NAME = "name";
+	
 	private Context context;
 	private SQLiteDatabase database;
 	private DbOpenHelper dbHelper;
@@ -43,7 +45,7 @@ public class DbManager {
 		ArrayList<RouteInfo> routes = new ArrayList<RouteInfo>();
 		cursor.moveToFirst();
 		for (int i = 0; i < cursor.getCount(); i++) {
-			routes.add(new RouteInfo(cursor.getString(1), cursor.getString(2)));
+			routes.add(new RouteInfo(cursor.getLong(0), cursor.getString(1), cursor.getString(2)));
 			cursor.moveToNext();
 		}
 		cursor.close();
