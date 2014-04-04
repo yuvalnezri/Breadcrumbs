@@ -59,7 +59,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 	
 	private RecordMapView mapView;
 	private Button focusBtn;
-//	private Button  drawButton, startLocationButton, stopLocationButton;
+
 	
 	
 	@Override
@@ -183,7 +183,6 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 	/* methods responsible for action bar inflation and menu inflation */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
-	   // getMenuInflater().inflate(R.layout.record_menu, menu);
 	    getMenuInflater().inflate(R.menu.action_bar, menu);
 	    return true;
 	} 
@@ -261,13 +260,6 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     	case R.id.focus_btn :
     		mapView.nextViewMode();
     		break;
-//    	case R.id.start_location_btn :
-//    		locationManager.start();
-//    		break;
-//    	
-//    	case R.id.stop_location_btn :
-//    		locationManager.stop();
-//    		break;
     	}	
     }
     

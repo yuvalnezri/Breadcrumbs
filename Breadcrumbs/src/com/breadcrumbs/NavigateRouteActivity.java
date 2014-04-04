@@ -1,7 +1,5 @@
 package com.breadcrumbs;
 
-
-//import android.app.ActionBar;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -42,8 +40,8 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
 			
 		//finding view by id
 		mapView = (NavigationMapView) findViewById(R.id.mapView);
-		focusBtn = (Button) findViewById(R.id.focus_btn); // NEW
-		focusBtn.setOnClickListener(this); //NEW
+		focusBtn = (Button) findViewById(R.id.focus_btn); 
+		focusBtn.setOnClickListener(this); 
 		
 		byte[] route  = getIntent().getByteArrayExtra("route");
 		if (route == null) {

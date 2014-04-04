@@ -340,7 +340,8 @@ public class MapView extends View
 		
 	}
 	
-	public void nextViewMode() { // TODO ?? we can avoid using these functions 
+	
+	public void nextViewMode() { 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
 			Toast.makeText(context, "Focus Mode : CENTERED", Toast.LENGTH_SHORT).show();
@@ -502,6 +503,9 @@ public class MapView extends View
 	/*************************************************************************************
 	*Drawing functions
 	**************************************************************************************/
+
+	
+	@Override
 	protected void onDraw(Canvas canvas) {
 	    super.onDraw(canvas);
 	    canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
