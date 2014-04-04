@@ -1,4 +1,4 @@
-package com.breadcrumbs.helpers;
+package com.breadcrumbs;
 
 
 import android.content.Intent;
@@ -12,11 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import com.breadcrumbs.NavigateRouteActivity;
 import com.breadcrumbs.R;
 import com.breadcrumbs.db.DbContentProvider;
 import com.breadcrumbs.db.DbManager;
 import com.breadcrumbs.db.DbOpenHelper;
+import com.breadcrumbs.helpers.ListAdapter;
+import com.breadcrumbs.helpers.RouteInfo;
 
 public class LoadActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
