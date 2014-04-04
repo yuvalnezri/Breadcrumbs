@@ -1,6 +1,8 @@
 package com.breadcrumbs;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import com.breadcrumbs.R;
 import com.breadcrumbs.db.DbContentProvider;
 import com.breadcrumbs.db.DbManager;
 import com.breadcrumbs.db.DbOpenHelper;
@@ -78,11 +79,31 @@ public class LoadActivity extends ActionBarActivity implements LoaderManager.Loa
 	}
 	
 	public void listItemClickedHandler(View v) {
-		RouteInfo routeinfo = (RouteInfo) v.getTag();
+		final RouteInfo routeinfo = (RouteInfo) v.getTag();
+		
 		
 		switch (v.getId()) {
 		case R.id.delete:
-			deleteRoute(routeinfo.id);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Delete Route");
+			builder.setMessage("Are you sure you want to delete " + routeinfo.name + "?");
+
+			// Set up the buttons
+			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+					deleteRoute(routeinfo.id);
+			    }
+			});
+			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			        dialog.cancel();
+			        
+			    }
+			});
+
+			builder.show();
 			break;
 		case R.id.nameLabel:
 		case R.id.dateLabel:
@@ -95,6 +116,12 @@ public class LoadActivity extends ActionBarActivity implements LoaderManager.Loa
 	
 	private void deleteRoute(long id){
 		dbManager.deleteRoute(id);
+		getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
+		adapter.notifyDataSetChanged();
+	}
+	
+	private void deleteAllRoutes(){
+    	dbManager.deleteAllRoutes();
 		getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
 		adapter.notifyDataSetChanged();
 	}
@@ -145,10 +172,29 @@ public class LoadActivity extends ActionBarActivity implements LoaderManager.Loa
 		// as you specify a parent activity in AndroidManifest.xml.
 		 switch (item.getItemId()){
 	     	case R.id.delete_all_btn:
-		     		dbManager.deleteAllRoutes();
-					getSupportLoaderManager().restartLoader(ROUTE_LIST_LOADER, null, this);
-					adapter.notifyDataSetChanged();
-		    		return true;
+	     		
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle("Delete All Routes");
+				builder.setMessage("Are you sure you want to delete ALL routes?");
+
+				// Set up the buttons
+				builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+				    @Override
+				    public void onClick(DialogInterface dialog, int which) {
+				    	deleteAllRoutes();
+				    }
+				});
+				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				    @Override
+				    public void onClick(DialogInterface dialog, int which) {
+				        dialog.cancel();
+				        
+				    }
+				});
+
+
+				builder.show();
+		    	return true;
 	     	default:
 			return super.onOptionsItemSelected(item);
 		 }

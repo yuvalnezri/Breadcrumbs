@@ -354,10 +354,9 @@ public class MapView extends View
 	}
 	
 	
-	public void nextViewMode() { // TODO ?? we can avoid using these functions 
+	public void nextViewMode() { 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
-			setViewMode(MapViewMode.NORMAL);
 			return;
 		}
 			
