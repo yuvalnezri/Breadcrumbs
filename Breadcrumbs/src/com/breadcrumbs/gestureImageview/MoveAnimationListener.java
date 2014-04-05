@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gestureImageview;
+package com.breadcrumbs.gestureImageview;
 
 
 /**
  * @author Jason Polites
  *
  */
-public interface FlingAnimationListener {
+public interface MoveAnimationListener {
 
 	public void onMove(float x, float y);
-	
-	public void onComplete();
 	
 }

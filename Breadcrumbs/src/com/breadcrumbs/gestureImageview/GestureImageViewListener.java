@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gestureImageview;
-
+package com.breadcrumbs.gestureImageview;
 
 /**
- * @author Jason Polites
+ * @author jasonpolites
  *
  */
-public interface MoveAnimationListener {
+public interface GestureImageViewListener {
 
-	public void onMove(float x, float y);
+	public void onTouch(float x, float y);
+	
+	public void onScale(float scale);
+	
+	public void onPosition(float x, float y);
 	
 }

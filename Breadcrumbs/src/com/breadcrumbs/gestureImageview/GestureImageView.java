@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gestureImageview;
+package com.breadcrumbs.gestureImageview;
 
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
@@ -279,6 +279,8 @@ public class GestureImageView extends ImageView  {
 				}
 
 				break;
+		default:
+			break;
 		}
 	}
 
