@@ -2,16 +2,18 @@ package com.breadcrumbs;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 //import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
@@ -35,16 +37,25 @@ import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.RecordMapView;
 
+
+
 public class RecordRouteActivity extends ActionBarActivity implements LocationManagerListener, OnClickListener, CompassManagerListener {
 	
 	private final static int CAMERA_REQUEST = 100;
 	
+	/* fields for enabling high res picture */
+	static final int REQUEST_TAKE_PHOTO = 1;
+	String mCurrentPhotoPath;
+	private static final String JPEG_FILE_PREFIX = "IMG_";
+	private static final String JPEG_FILE_SUFFIX = ".jpg";
+	private AlbumStorageDirFactory mAlbumStorageDirFactory = null;
+
+	/* fields for enabling location management */
 	private LocationManager locationManager;
 	private GoogleServicesManager gsManager;
 	private CompassManager compassManager;
 	
-	
-	private String routeName;
+//	private String routeName;
 	
 	private RecordMapView mapView;
 	private Button focusBtn;
@@ -56,42 +67,141 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
         
-        routeName = getIntent().getExtras().getString("name");
+//        routeName = getIntent().getExtras().getString("name");
         
         locationManager = new LocationManager(this);
-        
         gsManager = new GoogleServicesManager(this);
-        
         compassManager = new CompassManager(this);
-        
         mapView = (RecordMapView) findViewById(R.id.mapView);
-        focusBtn = (Button) findViewById(R.id.focus_btn); // NEW
-		focusBtn.setOnClickListener(this); //NEW
-		
+        focusBtn = (Button) findViewById(R.id.focus_btn); 
+		focusBtn.setOnClickListener(this); 
+        
+		/* new */
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+			mAlbumStorageDirFactory = new FroyoAlbumDirFactory();
+		} else {
+			mAlbumStorageDirFactory = new BaseAlbumDirFactory();
+		}
+		/* new */
     }
 
+
+	
+	/* methods to restore state in case of screen orientation */
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		byte[] buf = mapView.serializeRoute();
+		state.putSerializable("currRoute", buf);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		byte[] route = (byte[])savedInstanceState.getSerializable("currRoute");
+		if (route == null) {
+			//TODO some error
+			finish();
+		}
+		mapView.loadRouteFromByteArray(route);
+	}
+	/* methods to restore state in case of screen orientation */
+
+
+	
+	/* methods to enable high res picture saving */
+	private String getAlbumName() {
+		return getString(R.string.album_name);
+	}
+	private File getAlbumDir() {
+		File storageDir = null;
+
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			
+			storageDir = mAlbumStorageDirFactory.getAlbumStorageDir(getAlbumName());
+
+			if (storageDir != null) {
+				if (! storageDir.mkdirs()) {
+					if (! storageDir.exists()){
+						Log.d("BreadCrumbs", "failed to create directory");
+						return null;
+					}
+				}
+			}
+			
+		} else {
+			Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+		}
+		
+		return storageDir;
+	}
+	private File createImageFile() throws IOException {
+		// Create an image file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+		String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+		File albumF = getAlbumDir();
+		File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
+		return imageF;
+	}
+	private File setUpPhotoFile() throws IOException {
+		File f = createImageFile();
+		mCurrentPhotoPath = f.getAbsolutePath();
+		return f;
+	}
+	private void galleryAddPic() {
+	    Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+		File f = new File(mCurrentPhotoPath);
+	    Uri contentUri = Uri.fromFile(f);
+	    mediaScanIntent.setData(contentUri);
+	    this.sendBroadcast(mediaScanIntent);
+}
+	private void takePicture(){
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		/* enables high res picture saving */ 
+		if (intent.resolveActivity(getPackageManager()) != null) {
+	        // Create the File where the photo should go
+	        File photoFile = null;
+	        try {
+	            photoFile = setUpPhotoFile();
+	            mCurrentPhotoPath = photoFile.getAbsolutePath();
+	        } catch (IOException e) {
+	            // Error occurred while creating the File
+	        	e.printStackTrace();
+				photoFile = null;
+				mCurrentPhotoPath = null;
+	            
+	        }
+	        // Continue only if the File was successfully created
+	        if (photoFile != null) {
+	            intent.putExtra(MediaStore.EXTRA_OUTPUT,
+	                    Uri.fromFile(photoFile));
+	            startActivityForResult(intent, CAMERA_REQUEST);
+	        }
+	    }
+	}
+	
+	/* methods responsible for action bar inflation and menu inflation */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu){
 	    getMenuInflater().inflate(R.menu.action_bar, menu);
 	    return true;
-	}
-		 
+	} 
 	public boolean onOptionsItemSelected(MenuItem item){
          switch (item.getItemId()){
-        	case R.id.focus_btn:
-	        	mapView.nextViewMode();
-	    		return true;
-        	case R.id.new_btn :
-        		mapView.reset();
-        		return true;
+//        	case R.id.focus_btn:
+//	        	mapView.nextViewMode();
+//	    		return true;
+//        	case R.id.new_btn :
+//        		mapView.reset();
+//        		return true;
         	case R.id.save_btn :
         		mapView.addMapItem(null, Type.FLAG);
         		saveRouteToDB();
         		
         		return true;
         	case R.id.picture_btn:
-        		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        		startActivityForResult(intent, CAMERA_REQUEST);
+        		takePicture();
+        		//startActivityForResult(intent, CAMERA_REQUEST);
         		return true;
         	case R.id.note_btn :
         		takeNote();
@@ -101,6 +211,9 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         		return super.onOptionsItemSelected(item);
         }
     }
+	
+	
+
 	@Override
 	protected void onStart(){
 		super.onStart();
@@ -128,7 +241,8 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 			locationManager.pause();
 		}
 		compassManager.onPause();
-	
+		
+		
 	}
 	
 	@Override
@@ -157,8 +271,6 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     	i.putExtra("route",	buf);
     	setResult(RESULT_OK, i);
     	finish();
-    	
-    	
     }
     
 
@@ -198,41 +310,18 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     	case CAMERA_REQUEST:
     		if (resultCode == RESULT_CANCELED)
     			return;
-    		Bitmap pic = (Bitmap) data.getExtras().get("data");
-    		String path = saveNewPic(pic);
-    		mapView.addMapItem(path, Type.PICTURE);
+    		/* new */
+    		if (mCurrentPhotoPath != null) {
+    			mapView.addMapItem(mCurrentPhotoPath, Type.PICTURE);
+    			galleryAddPic();
+    			mCurrentPhotoPath = null;
+    		}
+    		break;
+    		/* new */
     	}
     	
     	
     }
-    
-    
-    private String saveNewPic(Bitmap pic)  {
-    	File appDir = getDir("imageDir", MODE_PRIVATE);
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",java.util.Locale.getDefault())
-                .format(new Date());
-        File imgFile = new File(appDir.getPath() + File.separator + routeName + File.separator , "IMG_" 
-        		+ timeStamp + ".jpg");
-
-        
-        FileOutputStream fos = null;
-        try {           
-            if (imgFile.exists() == false) {
-                imgFile.getParentFile().mkdirs();
-                imgFile.createNewFile();
-            }
-            fos = new FileOutputStream(imgFile);
-
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            pic.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-        } catch (Exception e) {
-            Log.e("breadcrumbs", "ERROR", e);
-        }
-        return imgFile.getAbsolutePath();
-    }
-    
     
     private void takeNote() {
 

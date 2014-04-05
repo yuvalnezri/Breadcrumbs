@@ -21,15 +21,11 @@ import com.breadcrumbs.db.DbManager;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener{
 	
-	
 	static final int ROUTE_REQUEST = 1;
-	
 	private SimpleCursorAdapter cAdapter;
-	
 	private DbManager dbManager;
-	
 	private Button newRoute,loadBtn;
-	
+	private Button resumeBtn;
 	String newRouteName;
 	
 	
@@ -40,8 +36,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		
 		newRoute = (Button) findViewById(R.id.new_route_btn);
 		loadBtn = (Button) findViewById(R.id.load_btn);
+		//resumeBtn = (Button) findViewById(R.id.resume_btn);
 		newRoute.setOnClickListener(this);
 		loadBtn.setOnClickListener(this);
+		//resumeBtn.setOnClickListener(this);
 		
 		dbManager = new DbManager(this);
 		dbManager.open();
@@ -63,9 +61,16 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		case (R.id.load_btn):
 			loadRoute();
 			break;
+//		case (R.id.resume_btn):
+//			Intent i= new Intent(this,RecordRouteActivity.class);
+//	        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//	        startActivity(i);
+//			break;
 		}
 		
 	}
+	
+
 	
 	private void loadRoute() {
 		Intent intent = new Intent(this, LoadActivity.class);

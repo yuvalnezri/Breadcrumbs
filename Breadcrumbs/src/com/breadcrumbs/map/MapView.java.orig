@@ -344,9 +344,12 @@ public class MapView extends View
 	public void nextViewMode() { 
 		if (mode == MapViewMode.NORMAL) {
 			setViewMode(MapViewMode.FOCUSED);
+<<<<<<< HEAD
+=======
 			Toast.makeText(context, "Focus Mode : CENTERED", Toast.LENGTH_SHORT).show();
 
 			//setViewMode(MapViewMode.NORMAL);
+>>>>>>> 7188b6e66f41acd9aea3ee0cc8199b8a543865fb
 			return;
 		}
 			

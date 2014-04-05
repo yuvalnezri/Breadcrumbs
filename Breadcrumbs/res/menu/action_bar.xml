@@ -10,12 +10,12 @@
           android:icon="@drawable/ic_action_note"
           android:title="@string/note"
           compat:showAsAction="always" />
-   
+ <!--    
    <item 	android:id="@+id/new_btn"
    			android:icon="@drawable/ic_action_new"
        		android:title="@string/newstring"
        		compat:showAsAction="always"/>
-	
+-->	
 	<item 	android:id="@+id/save_btn"
    			android:icon="@drawable/ic_action_save"
        		android:title="@string/save"

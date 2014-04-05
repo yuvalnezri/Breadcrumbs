@@ -36,7 +36,7 @@ GooglePlayServicesClient.OnConnectionFailedListener
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
     //distance const to fire a new location event in Meters
-    private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 1;
+    private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 6;
 	
     Location lastLocationRecieved;
 	

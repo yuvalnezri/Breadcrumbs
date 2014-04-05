@@ -47,8 +47,5 @@ public class ListAdapter extends CursorAdapter {
 		// TODO Auto-generated method stub
 		return this.context.getLayoutInflater().inflate(R.layout.list_layout_item, parent, false);
 	}
-	
-	
-	
-
 }
+	
