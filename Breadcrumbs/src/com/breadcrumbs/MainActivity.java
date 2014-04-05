@@ -1,31 +1,29 @@
 package com.breadcrumbs;
 
-//import android.support.v7.app.ActionBar;
-//import android.app.Activity;
+
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-//import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
 
 import com.breadcrumbs.db.DbManager;
+
 
 
 public class MainActivity extends ActionBarActivity implements OnClickListener{
 	
 	static final int ROUTE_REQUEST = 1;
-	private SimpleCursorAdapter cAdapter;
 	private DbManager dbManager;
 	private Button newRoute,loadBtn;
-	private Button resumeBtn;
+//	private Button resumeBtn;
 	String newRouteName;
 	
 	
@@ -43,12 +41,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		
 		dbManager = new DbManager(this);
 		dbManager.open();
-		
-		String[] from = new String[]{"name","date"};
-		int[] to = new int[] {android.R.id.text1, android.R.id.text2};
-		cAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_multiple_choice, dbManager.getRoutesCursor(),
-											from, to, 0);
-
 	}
 	
 
@@ -122,33 +114,8 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 				
 				byte[] route = data.getByteArrayExtra("route");
 				dbManager.addRoute(newRouteName, route);
-				cAdapter.changeCursor(dbManager.getRoutesCursor());
-				cAdapter.notifyDataSetChanged();
 			}
 		}
 	}
 	
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//	    // Inflate the menu items for use in the action bar
-//	    
-//	    getMenuInflater().inflate(R.menu.action_bar, menu);
-//	    return super.onCreateOptionsMenu(menu);
-//	}
-//	
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//	    // Handle presses on the action bar items
-//	    switch (item.getItemId()) {
-//	        case R.id.picture_btn:
-//	        	//Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        		//startActivityForResult(intent, CAMERA_REQUEST);
-//	            return true;
-//	        case R.id.action_settings:
-//	            openSettings();
-//	            return true;
-//	        default:
-//	            return super.onOptionsItemSelected(item);
-//	    }
-//	}
 }
