@@ -1,6 +1,7 @@
-package com.breadcrumbs;
+package com.breadcrumbs.helpers;
 
 import java.io.File;
+
 
 import android.os.Environment;
 

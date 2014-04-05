@@ -3,8 +3,6 @@ package com.breadcrumbs;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -15,27 +13,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-//import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
-//import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-//import android.widget.Button;
 import android.widget.EditText;
 
 import com.breadcrumbs.compass.CompassManager;
 import com.breadcrumbs.compass.CompassManagerListener;
+import com.breadcrumbs.helpers.AlbumStorageDirFactory;
+import com.breadcrumbs.helpers.BaseAlbumDirFactory;
+import com.breadcrumbs.helpers.FroyoAlbumDirFactory;
 import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.helpers.MapItem.Type;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.RecordMapView;
+
 
 
 
@@ -46,7 +45,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 	/* fields for enabling high res picture */
 	static final int REQUEST_TAKE_PHOTO = 1;
 	String mCurrentPhotoPath;
-	private static final String JPEG_FILE_PREFIX = "IMG_";
+	private static final String JPEG_FILE_PREFIX = "IMG";
 	private static final String JPEG_FILE_SUFFIX = ".jpg";
 	private AlbumStorageDirFactory mAlbumStorageDirFactory = null;
 
@@ -136,11 +135,9 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 		return storageDir;
 	}
 	private File createImageFile() throws IOException {
-		// Create an image file name
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-		String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+		// Create an image file name special characters not allowed
 		File albumF = getAlbumDir();
-		File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
+		File imageF = File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, albumF);
 		return imageF;
 	}
 	private File setUpPhotoFile() throws IOException {

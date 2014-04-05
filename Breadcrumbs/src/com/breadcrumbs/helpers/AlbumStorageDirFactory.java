@@ -1,7 +1,7 @@
-package com.breadcrumbs;
+package com.breadcrumbs.helpers;
 
 import java.io.File;
 
-abstract class AlbumStorageDirFactory {
+public abstract class AlbumStorageDirFactory {
 	public abstract File getAlbumStorageDir(String albumName);
 }
