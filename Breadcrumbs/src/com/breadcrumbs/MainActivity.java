@@ -15,16 +15,20 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.breadcrumbs.db.DbManager;
+import com.breadcrumbs.helpers.IntentCodes;
 
 
 
 public class MainActivity extends ActionBarActivity implements OnClickListener{
 	
+	
 	static final int ROUTE_REQUEST = 1;
 	private DbManager dbManager;
 	private Button newRoute,loadBtn;
-//	private Button resumeBtn;
+	private Button resumeBtn;
 	String newRouteName;
+	
+	byte[] pausedRoute = null;
 	
 	
 	@Override
@@ -34,10 +38,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		
 		newRoute = (Button) findViewById(R.id.new_route_btn);
 		loadBtn = (Button) findViewById(R.id.load_btn);
-		//resumeBtn = (Button) findViewById(R.id.resume_btn);
+		resumeBtn = (Button) findViewById(R.id.resume_btn);
 		newRoute.setOnClickListener(this);
 		loadBtn.setOnClickListener(this);
-		//resumeBtn.setOnClickListener(this);
 		
 		dbManager = new DbManager(this);
 		dbManager.open();
@@ -53,19 +56,23 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		case (R.id.load_btn):
 			loadRoute();
 			break;
-//		case (R.id.resume_btn):
-//			Intent i= new Intent(this,RecordRouteActivity.class);
-//	        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//	        startActivity(i);
-//			break;
+		case (R.id.resume_btn):
+			resumeRoute();
+			break;
 		}
 		
 	}
 	
-
+	private void resumeRoute() {
+		Intent intent = new Intent(this, RecordRouteActivity.class);
+		intent.putExtra("continued", true);
+		intent.putExtra("route", pausedRoute);
+		startActivityForResult(intent, ROUTE_REQUEST);
+	}
 	
 	private void loadRoute() {
 		Intent intent = new Intent(this, LoadActivity.class);
+		intent.putExtra("continued", false);
 		startActivity(intent);
 	}
 	
@@ -114,8 +121,19 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 				
 				byte[] route = data.getByteArrayExtra("route");
 				dbManager.addRoute(newRouteName, route);
+				resumeBtn.setClickable(false);
+			}
+			
+			if (resultCode == IntentCodes.RESULT_PAUSED) {
+				pausedRoute = data.getByteArrayExtra("route");
+				resumeBtn.setOnClickListener(this);
+				resumeBtn.setClickable(true);
+				
 			}
 		}
+		
+
+		
 	}
 	
 }

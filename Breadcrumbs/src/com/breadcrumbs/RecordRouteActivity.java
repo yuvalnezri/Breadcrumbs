@@ -26,6 +26,7 @@ import android.widget.EditText;
 
 import com.breadcrumbs.compass.CompassManager;
 import com.breadcrumbs.compass.CompassManagerListener;
+import com.breadcrumbs.helpers.IntentCodes;
 import com.breadcrumbs.helpers.AlbumStorageDirFactory;
 import com.breadcrumbs.helpers.BaseAlbumDirFactory;
 import com.breadcrumbs.helpers.FroyoAlbumDirFactory;
@@ -65,8 +66,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        
-//        routeName = getIntent().getExtras().getString("name");
+       
         
         locationManager = new LocationManager(this);
         gsManager = new GoogleServicesManager(this);
@@ -75,13 +75,21 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         focusBtn = (Button) findViewById(R.id.focus_btn); 
 		focusBtn.setOnClickListener(this); 
         
-		/* new */
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 			mAlbumStorageDirFactory = new FroyoAlbumDirFactory();
 		} else {
 			mAlbumStorageDirFactory = new BaseAlbumDirFactory();
 		}
-		/* new */
+
+		Intent intent = getIntent();
+		if (intent.getBooleanExtra("continued", false)) {
+			byte[] route = intent.getByteArrayExtra("route");
+			mapView.loadRouteFromByteArray(route);
+		}
+		
+		
+		
     }
 
 
@@ -185,12 +193,7 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
 	} 
 	public boolean onOptionsItemSelected(MenuItem item){
          switch (item.getItemId()){
-//        	case R.id.focus_btn:
-//	        	mapView.nextViewMode();
-//	    		return true;
-//        	case R.id.new_btn :
-//        		mapView.reset();
-//        		return true;
+
         	case R.id.save_btn :
         		mapView.addMapItem(null, Type.FLAG);
         		saveRouteToDB();
@@ -198,10 +201,14 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         		return true;
         	case R.id.picture_btn:
         		takePicture();
-        		//startActivityForResult(intent, CAMERA_REQUEST);
+
         		return true;
         	case R.id.note_btn :
         		takeNote();
+        		return true;
+        		
+        	case android.R.id.home:
+        		onBackPressed();
         		return true;
         
         	default:
@@ -209,7 +216,15 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         }
     }
 	
-	
+	@Override
+	public void onBackPressed() {
+    	byte[] buf = mapView.serializeRoute();
+        
+    	Intent i = new Intent();
+    	i.putExtra("route",	buf);
+    	setResult(IntentCodes.RESULT_PAUSED, i);
+    	finish();
+	}
 
 	@Override
 	protected void onStart(){
