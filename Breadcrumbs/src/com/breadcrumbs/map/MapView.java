@@ -346,7 +346,6 @@ public class MapView extends View
 			setViewMode(MapViewMode.FOCUSED);
 			Toast.makeText(context, "Focus Mode : CENTERED", Toast.LENGTH_SHORT).show();
 
-			//setViewMode(MapViewMode.NORMAL);
 			return;
 		}
 			
@@ -449,8 +448,8 @@ public class MapView extends View
 	protected void recalculateLocationMarkerTransform() {
 		
 		switch (mode) {
-		//case NORMAL:
 		case NORMAL:
+		case FOCUSED:
 			if(currentLocation == null)
 				return;
 			PointF transformedCurrent = transformPoint(currentLocation,transform);
