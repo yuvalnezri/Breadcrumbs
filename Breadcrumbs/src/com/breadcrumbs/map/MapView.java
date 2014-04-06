@@ -107,11 +107,11 @@ public class MapView extends View
 		path = new Path();
 		mode = MapViewMode.NORMAL;
 		
-		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.garrow22);
+		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
 		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera127);
 		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.comment27);
 		houseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.house36);
-		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.flag64);
+		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.cake_house);
 
 		initPaint();
 		
@@ -137,7 +137,7 @@ public class MapView extends View
 		}
 		
 		Resources res = getResources();
-		Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.sim_frst3_smlr_cmps800);
+		Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.map_background);
 		//Canvas canvas = new Canvas(bitmap.copy(Bitmap.Config.ARGB_8888, true));
 		
 		canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -156,24 +156,24 @@ public class MapView extends View
 		linePaint = new Paint();
 		paint2 = new Paint();
 		
-		paint.setColor(Color.MAGENTA);
+		paint.setColor(Color.BLACK);
 		paint.setAntiAlias(true);
 		paint.setStrokeWidth(20);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		paint2.setColor(Color.CYAN);
+		paint2.setColor(Color.parseColor("#785631"));
 		paint2.setAntiAlias(true);
 		paint2.setStrokeWidth(15);
 		paint2.setStyle(Paint.Style.STROKE);
 		paint2.setStrokeJoin(Paint.Join.ROUND);
 		paint2.setStrokeCap(Paint.Cap.ROUND);
 		
-		textPaint.setTextSize(30f);
-		textPaint.setColor(Color.BLUE);
+		textPaint.setTextSize(35f);
+		textPaint.setColor(Color.parseColor("#785631"));
 		
 		linePaint.setStrokeWidth(5);
-		linePaint.setColor(Color.BLUE);
+		linePaint.setColor(Color.parseColor("#785631"));
 	}
 	
 	/*************************************************************************************

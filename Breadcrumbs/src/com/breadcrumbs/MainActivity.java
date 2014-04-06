@@ -41,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 		resumeBtn = (Button) findViewById(R.id.resume_btn);
 		newRoute.setOnClickListener(this);
 		loadBtn.setOnClickListener(this);
+		resumeBtn.setEnabled(false);
 		
 		dbManager = new DbManager(this);
 		dbManager.open();
@@ -121,13 +122,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener{
 				
 				byte[] route = data.getByteArrayExtra("route");
 				dbManager.addRoute(newRouteName, route);
-				resumeBtn.setClickable(false);
+				resumeBtn.setEnabled(false);
 			}
 			
 			if (resultCode == IntentCodes.RESULT_PAUSED) {
 				pausedRoute = data.getByteArrayExtra("route");
 				resumeBtn.setOnClickListener(this);
-				resumeBtn.setClickable(true);
+				resumeBtn.setEnabled(true);
 				
 			}
 		}

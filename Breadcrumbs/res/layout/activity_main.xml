@@ -2,35 +2,34 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/homepagev1"
+    android:background="@drawable/background"
     android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/new_route_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="37dp"
-            android:background="@drawable/new_button" />
+    <Button
+        android:id="@+id/new_route_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="200dp"
+        android:background="@drawable/new_button" />
 
-        <Button
-            android:id="@+id/load_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="28dp"
-            android:background="@drawable/load_button" />
+    <Button
+        android:id="@+id/load_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/new_route_btn"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/load_button" />
 
-        <Button
-            android:id="@+id/resume_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="43dp"
-            android:clickable="false"
-            android:text="Resume" />
+    <Button
+        android:id="@+id/resume_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/new_route_btn"
+        android:layout_alignLeft="@+id/new_route_btn"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/resume_button"
+        android:clickable="false" />
 
-    </RelativeLayout>
+</RelativeLayout>
