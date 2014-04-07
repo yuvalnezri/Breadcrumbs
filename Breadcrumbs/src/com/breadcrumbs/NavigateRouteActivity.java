@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 //import android.widget.Button;
 //import android.support.v7.app.ActionBar;
 
@@ -37,7 +38,10 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigate);
-			
+		
+		//dont turn off screen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 		//finding view by id
 		mapView = (NavigationMapView) findViewById(R.id.mapView);
 		focusBtn = (Button) findViewById(R.id.focus_btn); 

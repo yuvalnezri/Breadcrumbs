@@ -245,6 +245,12 @@ public class MapView extends View
 		
 		public boolean onScale(ScaleGestureDetector detector) {
 			float factor = detector.getScaleFactor();
+			
+			//zoom factor is in meters
+			float zoomFactor = calcZoomFactor(factor); 
+			if ( zoomFactor < 15)
+				return true;
+			
 			transform.postScale(factor,factor,scaleFocus.x,scaleFocus.y);
 			recalculatePath();
 			recalculateLocationMarkerTransform();
@@ -395,15 +401,22 @@ public class MapView extends View
 		return newArr;
 	}
 	
-	protected String calcZoomFactor(){
-		float values[] = new float[9];
-	    transform.getValues(values);
-	    float scaleX = values[Matrix.MSCALE_X];
-	    float factor = initPixToMeter / scaleX * SCALE_METER_LENGTH_PIX;
+	protected String getCurrentZoomFactor(){
+		float factor = calcZoomFactor(1f);
 	    DecimalFormat df = new DecimalFormat("#.00");
 	    String formated = df.format(factor);
 	    return formated;
 	}
+	
+	protected float calcZoomFactor(float newFactor) {
+		float values[] = new float[9];
+	    transform.getValues(values);
+	    float scaleX = values[Matrix.MSCALE_X]*newFactor;
+	    float factor = initPixToMeter / scaleX * SCALE_METER_LENGTH_PIX;
+	    return factor;
+	}
+	
+	
 	
 	//only adds 1 point to path without recalculating path
 	//point needs to be clean(true long/lat)
@@ -539,7 +552,7 @@ public class MapView extends View
 
 		} 
 	    //draw scale meter
-	    canvas.drawText(calcZoomFactor() + " m", 10 + SCALE_METER_LENGTH_PIX + 5, 35, textPaint);
+	    canvas.drawText(getCurrentZoomFactor() + " m", 10 + SCALE_METER_LENGTH_PIX + 5, 35, textPaint);
 	    canvas.drawLine(10, 35, 10+SCALE_METER_LENGTH_PIX, 35, linePaint);
 	    canvas.drawLine(10, 30, 10, 40, linePaint);
 	    canvas.drawLine(10+SCALE_METER_LENGTH_PIX, 30, 10+SCALE_METER_LENGTH_PIX, 40, linePaint);

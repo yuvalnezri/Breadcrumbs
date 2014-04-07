@@ -16,8 +16,6 @@ public class ViewPictureActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-
-		
 		setContentView(R.layout.activity_view_picture);
 		
 		imageView = (GestureImageView) findViewById(R.id.gestureImageView);

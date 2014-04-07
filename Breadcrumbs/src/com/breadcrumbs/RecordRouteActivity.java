@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,6 +68,10 @@ public class RecordRouteActivity extends ActionBarActivity implements LocationMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
        
+		
+		//dont turn off screen
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         
         locationManager = new LocationManager(this);
         gsManager = new GoogleServicesManager(this);
