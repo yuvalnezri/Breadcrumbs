@@ -46,7 +46,7 @@ public class MapView extends View
 	
 	protected enum MapViewMode { NORMAL , FOCUSED, ORIENTIATED_FOCUS }
 	
-	protected MapViewMode mode;
+	public MapViewMode mode;
 	
 	//Needed to pass to View Constructor
 	protected Context context;
@@ -253,7 +253,14 @@ public class MapView extends View
 		}
 		
 		public void onScaleEnd(ScaleGestureDetector detector) {
-			
+			if (mode == MapViewMode.FOCUSED) {
+				focus();
+				invalidate();
+			}
+			if (mode == MapViewMode.ORIENTIATED_FOCUS) {
+				orientAndFocus();
+				invalidate();
+			}
 		}
 	}	
 	
