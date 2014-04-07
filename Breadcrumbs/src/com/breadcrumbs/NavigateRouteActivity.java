@@ -4,18 +4,10 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-//import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-//import android.widget.Button;
-//import android.support.v7.app.ActionBar;
-
-
 import android.widget.Button;
 
 import com.breadcrumbs.compass.CompassManager;
@@ -24,6 +16,9 @@ import com.breadcrumbs.helpers.GoogleServicesManager;
 import com.breadcrumbs.location.LocationManager;
 import com.breadcrumbs.location.LocationManagerListener;
 import com.breadcrumbs.map.NavigationMapView;
+//import android.support.v4.app.FragmentActivity;
+//import android.widget.Button;
+//import android.support.v7.app.ActionBar;
 
 public class NavigateRouteActivity extends ActionBarActivity implements LocationManagerListener, OnClickListener, CompassManagerListener  {
 	NavigationMapView mapView;
@@ -61,23 +56,6 @@ public class NavigateRouteActivity extends ActionBarActivity implements Location
 		
 	}
 	
-	 @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.layout.navigate_menu, menu);
-        return true;
-    }
-	 
-	public boolean onOptionsItemSelected(MenuItem item){
-         switch (item.getItemId()){
-        	case R.id.focus_btn:
-	        	mapView.nextViewMode();
-	    		return true;
-        
-        	default:
-        		return super.onOptionsItemSelected(item);
-        }
-    }
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

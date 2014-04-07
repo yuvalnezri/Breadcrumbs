@@ -34,6 +34,7 @@ import com.breadcrumbs.R;
 import com.breadcrumbs.ViewPictureActivity;
 import com.breadcrumbs.helpers.MapItem;
 import com.breadcrumbs.helpers.SerializableRoute;
+import com.breadcrumbs.helpers.MapItem.Type;
 
 
 public class MapView extends View
@@ -108,10 +109,10 @@ public class MapView extends View
 		mode = MapViewMode.NORMAL;
 		
 		locationMarker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
-		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.camera127);
-		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.comment27);
-		houseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.house36);
-		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.cake_house);
+		cameraIcon = BitmapFactory.decodeResource(getResources(), R.drawable.amir_camera127_v2);
+		noteIcon =  BitmapFactory.decodeResource(getResources(), R.drawable.amir_comment27_v3);
+		houseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.amir_house);
+		flagIcon = BitmapFactory.decodeResource(getResources(), R.drawable.amir_flag_56);
 
 		initPaint();
 		
@@ -285,6 +286,13 @@ public class MapView extends View
 					//handle only first one for now
 					//TODO handle more
 					MapItem item = items.get(0);
+					for (int i = 0; i < items.size(); i++) {
+						item = items.get(i);
+						
+						if (item.getType()==Type.PICTURE || item.getType()==Type.NOTE)
+							break;
+					}
+					
 					switch (item.getType()) {
 					case PICTURE:
 						Intent i = new Intent(context,ViewPictureActivity.class);
