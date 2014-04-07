@@ -15,8 +15,10 @@
     <string name="save">save</string>
     <string name="focus">focus</string>
     <string name="desc" />
-    <string name="title_activity_load">LoadActivity</string>
+    <string name="title_activity_load">Load Route</string>
 	<string name="load">load</string>
 	<string name="album_name">BreadCrumbs</string>
 	<string name="resume">Resume</string>
+	<string name="record_route">Record Route</string>
+	<string name="navigate">Navigate</string>
 </resources>

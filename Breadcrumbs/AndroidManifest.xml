@@ -36,7 +36,7 @@
         </activity>
         <activity
             android:name="com.breadcrumbs.RecordRouteActivity"
-            android:label="@string/app_name"
+            android:label="@string/record_route"
             android:parentActivityName="com.breadcrumbs.MainActivity" >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -46,7 +46,7 @@
         </activity>
         <activity
             android:name="com.breadcrumbs.NavigateRouteActivity"
-            android:label="@string/app_name"
+            android:label="@string/navigate"
             android:parentActivityName="com.breadcrumbs.MainActivity" >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
